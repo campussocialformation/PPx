@@ -15,6 +15,14 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { getIdentiteForm } from "./IdentiteModules";
 
+// Légende des groupes couleur
+const GROUPES = [
+  { id: 1, label: "Situation et parcours" },
+  { id: 2, label: "Attentes et évaluation" },
+  { id: 3, label: "Plan d'action et suivi" },
+  { id: 4, label: "Vie quotidienne" },
+];
+
 // Configuration des modules par pôle
 const POLES = {
   adulte: {
@@ -24,6 +32,7 @@ const POLES = {
         id: "identite",
         label: "Identité et situation administrative",
         obligatoire: true,
+        groupe: 1,
         sousModules: [
           { id: "etat_civil", label: "État civil" },
           { id: "situation_familiale", label: "Situation familiale" },
@@ -39,6 +48,7 @@ const POLES = {
         id: "parcours_precedent",
         label: "Éléments du précédent parcours",
         obligatoire: true,
+        groupe: 1,
         sousModules: [
           { id: "parcours_scolaire", label: "Parcours scolaire" },
           { id: "parcours_institutionnel", label: "Parcours institutionnel" },
@@ -50,6 +60,7 @@ const POLES = {
         id: "recueil_attentes",
         label: "Recueil des attentes",
         obligatoire: true,
+        groupe: 2,
         sousModules: null,
         consentement: true,
       },
@@ -57,6 +68,7 @@ const POLES = {
         id: "analyse_equipe",
         label: "Analyse de l'équipe pluriprofessionnelle",
         obligatoire: true,
+        groupe: 2,
         sousModules: [
           { id: "educ_coordo", label: "Éducateur coordinateur" },
           { id: "equipe_quotidien", label: "Équipe du quotidien" },
@@ -70,30 +82,35 @@ const POLES = {
         id: "objectifs",
         label: "Objectifs et moyens à mettre en œuvre",
         obligatoire: true,
+        groupe: 3,
         sousModules: null,
       },
       {
         id: "parcours_futur",
         label: "Éléments du parcours futur",
         obligatoire: true,
+        groupe: 3,
         sousModules: null,
       },
       {
         id: "reseau",
         label: "Réseau et partenaires",
         obligatoire: true,
+        groupe: 3,
         sousModules: null,
       },
       {
         id: "bilan",
         label: "Bilan et évaluation",
         obligatoire: true,
+        groupe: 3,
         sousModules: null,
       },
       {
         id: "habitudes_vie",
         label: "Habitudes de vie",
         obligatoire: false,
+        groupe: 4,
         sousModules: [
           { id: "hv_alimentation", label: "Alimentation" },
           { id: "hv_sommeil", label: "Sommeil et repos" },
@@ -117,7 +134,7 @@ const POLES = {
 };
 
 // Composant module draggable dans la zone de composition
-function SortableModule({ id, label, onRemove }) {
+function SortableModule({ id, label, groupe, onRemove }) {
   const [expanded, setExpanded] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
@@ -127,12 +144,13 @@ function SortableModule({ id, label, onRemove }) {
   };
 
   const FormComponent = getIdentiteForm(id);
+  const groupeClass = groupe ? ` groupe-${groupe}` : "";
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`sortable-module-wrapper${expanded ? " expanded" : ""}`}
+      className={`sortable-module-wrapper${expanded ? " expanded" : ""}${groupeClass}`}
     >
       <div className="sortable-module">
         <span {...attributes} {...listeners} className="drag-handle">
@@ -165,9 +183,10 @@ function SortableModule({ id, label, onRemove }) {
 // Composant module dans le panneau gauche
 function ModuleBox({ module, onAdd, onAddSub }) {
   const [open, setOpen] = useState(false);
+  const groupeClass = module.groupe ? ` groupe-${module.groupe}` : "";
 
   return (
-    <div className="module-box">
+    <div className={`module-box${groupeClass}`}>
       <div className="module-box-header" onClick={() => setOpen(!open)}>
         <span>
           {open ? "▾" : "▸"} {module.label}
@@ -193,7 +212,9 @@ function ModuleBox({ module, onAdd, onAddSub }) {
           <button
             className="add-btn-all"
             onClick={() =>
-              module.sousModules.forEach((s) => onAddSub(s, module.id))
+              module.sousModules.forEach((s) =>
+                onAddSub(s, module.id, module.groupe)
+              )
             }
           >
             + Tout ajouter
@@ -203,7 +224,7 @@ function ModuleBox({ module, onAdd, onAddSub }) {
               <span>{sub.label}</span>
               <button
                 className="add-btn"
-                onClick={() => onAddSub(sub, module.id)}
+                onClick={() => onAddSub(sub, module.id, module.groupe)}
               >
                 +
               </button>
@@ -258,14 +279,20 @@ export default function App() {
       return;
     }
     if (!composition.find((m) => m.id === module.id)) {
-      setComposition([...composition, { id: module.id, label: module.label }]);
+      setComposition([
+        ...composition,
+        { id: module.id, label: module.label, groupe: module.groupe },
+      ]);
     }
   };
 
-  const ajouterSousModule = (sub, parentId) => {
+  const ajouterSousModule = (sub, parentId, groupe) => {
     const compositeId = `${parentId}__${sub.id}`;
     if (!composition.find((m) => m.id === compositeId)) {
-      setComposition([...composition, { id: compositeId, label: sub.label }]);
+      setComposition([
+        ...composition,
+        { id: compositeId, label: sub.label, groupe },
+      ]);
     }
   };
 
@@ -278,7 +305,11 @@ export default function App() {
     if (modulePendant && !composition.find((m) => m.id === modulePendant.id)) {
       setComposition([
         ...composition,
-        { id: modulePendant.id, label: modulePendant.label },
+        {
+          id: modulePendant.id,
+          label: modulePendant.label,
+          groupe: modulePendant.groupe,
+        },
       ]);
     }
     setModulePendant(null);
@@ -321,6 +352,17 @@ export default function App() {
         {/* Panneau gauche */}
         <aside className="sidebar">
           <h2>Modules disponibles</h2>
+
+          {/* Légende couleurs */}
+          <div className="groupes-legend">
+            {GROUPES.map((g) => (
+              <div key={g.id} className={`legende-item groupe-dot-${g.id}`}>
+                <span className="legende-dot" />
+                <span className="legende-label">{g.label}</span>
+              </div>
+            ))}
+          </div>
+
           {modules.map((module) => (
             <ModuleBox
               key={module.id}
@@ -354,6 +396,7 @@ export default function App() {
                   key={module.id}
                   id={module.id}
                   label={module.label}
+                  groupe={module.groupe}
                   onRemove={supprimerModule}
                 />
               ))}
