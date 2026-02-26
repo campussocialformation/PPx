@@ -13,6 +13,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { getIdentiteForm } from "./IdentiteModules";
 
 // Configuration des modules par pôle
 const POLES = {
@@ -23,7 +24,16 @@ const POLES = {
         id: "identite",
         label: "Identité et situation administrative",
         obligatoire: true,
-        souModules: null,
+        sousModules: [
+          { id: "etat_civil", label: "État civil" },
+          { id: "situation_familiale", label: "Situation familiale" },
+          { id: "scolarite", label: "Scolarité / Formation / Diplôme" },
+          { id: "situation_pro", label: "Situation professionnelle" },
+          { id: "droits_mdph", label: "Accès aux droits MDPH" },
+          { id: "droits_logement", label: "Accès aux droits logement" },
+          { id: "droits_emploi", label: "Accès aux droits emploi" },
+          { id: "droits_divers", label: "Accès aux droits divers" },
+        ],
       },
       {
         id: "parcours_precedent",
@@ -108,21 +118,46 @@ const POLES = {
 
 // Composant module draggable dans la zone de composition
 function SortableModule({ id, label, onRemove }) {
+  const [expanded, setExpanded] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const FormComponent = getIdentiteForm(id);
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className="sortable-module"
+      className={`sortable-module-wrapper${expanded ? " expanded" : ""}`}
     >
-      <span {...attributes} {...listeners} className="drag-handle">⠿</span>
-      <span className="module-label">{label}</span>
-      <button onClick={() => onRemove(id)} className="remove-btn">✕</button>
+      <div className="sortable-module">
+        <span {...attributes} {...listeners} className="drag-handle">
+          ⠿
+        </span>
+        {FormComponent ? (
+          <button
+            className="module-expand-btn"
+            onClick={() => setExpanded((v) => !v)}
+          >
+            <span className="expand-arrow">{expanded ? "▾" : "▸"}</span>
+            <span className="module-label">{label}</span>
+          </button>
+        ) : (
+          <span className="module-label">{label}</span>
+        )}
+        <button onClick={() => onRemove(id)} className="remove-btn">
+          ✕
+        </button>
+      </div>
+      {expanded && FormComponent && (
+        <div className="module-form-container">
+          <FormComponent />
+        </div>
+      )}
     </div>
   );
 }
@@ -134,12 +169,19 @@ function ModuleBox({ module, onAdd, onAddSub }) {
   return (
     <div className="module-box">
       <div className="module-box-header" onClick={() => setOpen(!open)}>
-        <span>{open ? "▾" : "▸"} {module.label}</span>
-        {!module.obligatoire && <span className="badge-optionnel">optionnel</span>}
+        <span>
+          {open ? "▾" : "▸"} {module.label}
+        </span>
+        {!module.obligatoire && (
+          <span className="badge-optionnel">optionnel</span>
+        )}
         {module.sousModules === null && (
           <button
             className="add-btn"
-            onClick={(e) => { e.stopPropagation(); onAdd(module); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onAdd(module);
+            }}
           >
             +
           </button>
@@ -150,7 +192,9 @@ function ModuleBox({ module, onAdd, onAddSub }) {
         <div className="sous-modules">
           <button
             className="add-btn-all"
-            onClick={() => module.sousModules.forEach((s) => onAddSub(s, module.id))}
+            onClick={() =>
+              module.sousModules.forEach((s) => onAddSub(s, module.id))
+            }
           >
             + Tout ajouter
           </button>
@@ -179,13 +223,18 @@ function ConsentementModal({ onConfirm, onRefuse }) {
         <div className="modal-icon">⚠️</div>
         <h3>Attention</h3>
         <p>
-          L'inclusion des attentes des aidants nécessite le <strong>consentement explicite
-          de la personne</strong> ou un cadre juridique établi (tutelle, curatelle).
+          L'inclusion des attentes des aidants nécessite le{" "}
+          <strong>consentement explicite de la personne</strong> ou un cadre
+          juridique établi (tutelle, curatelle).
         </p>
         <p>Confirmez-vous l'ajout de cette section ?</p>
         <div className="modal-actions">
-          <button className="btn-confirmer" onClick={onConfirm}>Confirmer</button>
-          <button className="btn-ignorer" onClick={onRefuse}>Ignorer cette section</button>
+          <button className="btn-confirmer" onClick={onConfirm}>
+            Confirmer
+          </button>
+          <button className="btn-ignorer" onClick={onRefuse}>
+            Ignorer cette section
+          </button>
         </div>
       </div>
     </div>
@@ -227,7 +276,10 @@ export default function App() {
   const handleConsentementConfirm = () => {
     setShowConsentement(false);
     if (modulePendant && !composition.find((m) => m.id === modulePendant.id)) {
-      setComposition([...composition, { id: modulePendant.id, label: modulePendant.label }]);
+      setComposition([
+        ...composition,
+        { id: modulePendant.id, label: modulePendant.label },
+      ]);
     }
     setModulePendant(null);
   };
@@ -254,7 +306,10 @@ export default function App() {
         <select
           className="pole-select"
           value={poleActif}
-          onChange={(e) => { setPoleActif(e.target.value); setComposition([]); }}
+          onChange={(e) => {
+            setPoleActif(e.target.value);
+            setComposition([]);
+          }}
         >
           <option value="adulte">Pôle Adulte</option>
           <option value="enfant">Pôle Enfant</option>
@@ -281,11 +336,19 @@ export default function App() {
           <h2>Composition du projet</h2>
           {composition.length === 0 && (
             <p className="placeholder">
-              Ajoutez des modules depuis le panneau gauche pour composer votre projet.
+              Ajoutez des modules depuis le panneau gauche pour composer votre
+              projet.
             </p>
           )}
-          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-            <SortableContext items={composition.map((m) => m.id)} strategy={verticalListSortingStrategy}>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={composition.map((m) => m.id)}
+              strategy={verticalListSortingStrategy}
+            >
               {composition.map((module) => (
                 <SortableModule
                   key={module.id}
