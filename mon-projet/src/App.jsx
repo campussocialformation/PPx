@@ -5,6 +5,9 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  DragOverlay,
+  useDraggable,
+  useDroppable,
 } from "@dnd-kit/core";
 import {
   SortableContext,
@@ -121,8 +124,31 @@ const POLES = {
   },
 };
 
+// Élément draggable depuis la palette (colonne gauche)
+function DraggableTextItem() {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
+    id: "PALETTE_TEXT",
+  });
+
+  return (
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      className={`palette-text-item${isDragging ? " is-dragging" : ""}`}
+    >
+      <span className="palette-text-icon">¶</span>
+      <div className="palette-text-content">
+        <div className="palette-text-label">Texte libre</div>
+        <div className="palette-text-hint">Glisser pour ajouter une note</div>
+      </div>
+      <span className="drag-handle palette-drag-handle">⠿</span>
+    </div>
+  );
+}
+
 // Composant module draggable dans la zone de composition
-function SortableModule({ id, label, groupe, onRemove }) {
+function SortableModule({ id, label, groupe, isTexteLibre, texte, onRemove, onUpdateTexte }) {
   const [expanded, setExpanded] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
@@ -131,20 +157,28 @@ function SortableModule({ id, label, groupe, onRemove }) {
     transition,
   };
 
-  const FormComponent = getIdentiteForm(id);
+  const FormComponent = isTexteLibre ? null : getIdentiteForm(id);
   const groupeClass = groupe ? ` groupe-${groupe}` : "";
 
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`sortable-module-wrapper${expanded ? " expanded" : ""}${groupeClass}`}
+      className={`sortable-module-wrapper${expanded ? " expanded" : ""}${groupeClass}${isTexteLibre ? " texte-libre-wrapper" : ""}`}
     >
-      <div className="sortable-module">
+      <div className={`sortable-module${isTexteLibre ? " texte-libre-module" : ""}`}>
         <span {...attributes} {...listeners} className="drag-handle">
           ⠿
         </span>
-        {FormComponent ? (
+        {isTexteLibre ? (
+          <textarea
+            className="texte-libre-input"
+            placeholder="Précisez votre pensée ici…"
+            value={texte}
+            onChange={(e) => onUpdateTexte(id, e.target.value)}
+            rows={2}
+          />
+        ) : FormComponent ? (
           <button
             className="module-expand-btn"
             onClick={() => setExpanded((v) => !v)}
@@ -255,8 +289,16 @@ export default function App() {
   const [composition, setComposition] = useState([]);
   const [showConsentement, setShowConsentement] = useState(false);
   const [modulePendant, setModulePendant] = useState(null);
+  const [activeDragId, setActiveDragId] = useState(null);
 
-  const sensors = useSensors(useSensor(PointerSensor));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
+  );
+
+  // Zone de dépôt pour la composition (utile quand vide)
+  const { setNodeRef: setCompositionRef } = useDroppable({
+    id: "composition-zone",
+  });
 
   const modules = POLES[poleActif].modules;
 
@@ -288,6 +330,10 @@ export default function App() {
     setComposition(composition.filter((m) => m.id !== id));
   };
 
+  const updateTexte = (id, texte) => {
+    setComposition((prev) => prev.map((m) => (m.id === id ? { ...m, texte } : m)));
+  };
+
   const handleConsentementConfirm = () => {
     setShowConsentement(false);
     if (modulePendant && !composition.find((m) => m.id === modulePendant.id)) {
@@ -308,12 +354,46 @@ export default function App() {
     setModulePendant(null);
   };
 
+  const handleDragStart = ({ active }) => {
+    setActiveDragId(active.id);
+  };
+
   const handleDragEnd = (event) => {
+    setActiveDragId(null);
     const { active, over } = event;
-    if (active.id !== over?.id) {
-      const oldIndex = composition.findIndex((m) => m.id === active.id);
-      const newIndex = composition.findIndex((m) => m.id === over.id);
-      setComposition(arrayMove(composition, oldIndex, newIndex));
+
+    if (!over) return;
+
+    // Cas 1 : dépôt d'un élément texte libre depuis la palette
+    if (active.id === "PALETTE_TEXT") {
+      const newId = `texte_libre__${Date.now()}`;
+      const newItem = { id: newId, label: "Texte libre", groupe: null, texte: "" };
+
+      setComposition((prev) => {
+        if (over.id === "composition-zone") {
+          return [...prev, newItem];
+        }
+        const overIndex = prev.findIndex((m) => m.id === over.id);
+        if (overIndex !== -1) {
+          const updated = [...prev];
+          updated.splice(overIndex + 1, 0, newItem);
+          return updated;
+        }
+        return [...prev, newItem];
+      });
+      return;
+    }
+
+    // Cas 2 : réordonnancement des éléments de la composition
+    if (active.id !== over.id) {
+      setComposition((prev) => {
+        const oldIndex = prev.findIndex((m) => m.id === active.id);
+        const newIndex = prev.findIndex((m) => m.id === over.id);
+        if (oldIndex !== -1 && newIndex !== -1) {
+          return arrayMove(prev, oldIndex, newIndex);
+        }
+        return prev;
+      });
     }
   };
 
@@ -336,70 +416,105 @@ export default function App() {
         </select>
       </header>
 
-      <div className="main">
-        {/* Panneau gauche */}
-        <aside className="sidebar">
-          <h2>Modules disponibles</h2>
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="main">
+          {/* Panneau gauche */}
+          <aside className="sidebar">
+            <h2>Modules disponibles</h2>
 
-          {(() => {
-            const groups = {};
-            modules.forEach((m) => {
-              const g = m.groupe ?? 0;
-              if (!groups[g]) groups[g] = [];
-              groups[g].push(m);
-            });
-            return Object.entries(groups).map(([gId, gModules]) => {
-              const groupeInfo = GROUPES.find((g) => g.id === Number(gId));
-              return (
-                <div key={gId} className={`sidebar-group groupe-${gId}`}>
-                  {groupeInfo && (
-                    <div className="sidebar-group-header">{groupeInfo.label}</div>
-                  )}
-                  {gModules.map((module) => (
-                    <ModuleBox
-                      key={module.id}
-                      module={module}
-                      onAdd={ajouterModule}
-                      onAddSub={ajouterSousModule}
-                    />
-                  ))}
-                </div>
-              );
-            });
-          })()}
-        </aside>
+            {/* Élément texte libre — glissable à volonté */}
+            <div className="sidebar-palette-section">
+              <DraggableTextItem />
+            </div>
 
-        {/* Zone de composition */}
-        <main className="composition">
-          <h2>Composition du projet</h2>
-          {composition.length === 0 && (
-            <p className="placeholder">
-              Ajoutez des modules depuis le panneau gauche pour composer votre
-              projet.
-            </p>
-          )}
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
+            {(() => {
+              const groups = {};
+              modules.forEach((m) => {
+                const g = m.groupe ?? 0;
+                if (!groups[g]) groups[g] = [];
+                groups[g].push(m);
+              });
+              return Object.entries(groups).map(([gId, gModules]) => {
+                const groupeInfo = GROUPES.find((g) => g.id === Number(gId));
+                return (
+                  <div key={gId} className={`sidebar-group groupe-${gId}`}>
+                    {groupeInfo && (
+                      <div className="sidebar-group-header">{groupeInfo.label}</div>
+                    )}
+                    {gModules.map((module) => (
+                      <ModuleBox
+                        key={module.id}
+                        module={module}
+                        onAdd={ajouterModule}
+                        onAddSub={ajouterSousModule}
+                      />
+                    ))}
+                  </div>
+                );
+              });
+            })()}
+          </aside>
+
+          {/* Zone de composition */}
+          <main className="composition" ref={setCompositionRef}>
+            <h2>Composition du projet</h2>
+            {composition.length === 0 && (
+              <p className={`placeholder${activeDragId === "PALETTE_TEXT" ? " drop-hint" : ""}`}>
+                {activeDragId === "PALETTE_TEXT"
+                  ? "Déposez la note ici"
+                  : "Ajoutez des modules depuis le panneau gauche pour composer votre projet."}
+              </p>
+            )}
             <SortableContext
               items={composition.map((m) => m.id)}
               strategy={verticalListSortingStrategy}
             >
-              {composition.map((module) => (
-                <SortableModule
-                  key={module.id}
-                  id={module.id}
-                  label={module.label}
-                  groupe={module.groupe}
-                  onRemove={supprimerModule}
-                />
-              ))}
+              {composition.map((module, index) => {
+                // Le texte libre hérite la couleur du bloc précédent dans la mise en page
+                let effectiveGroupe = module.groupe;
+                if (module.id.startsWith("texte_libre__")) {
+                  for (let i = index - 1; i >= 0; i--) {
+                    if (!composition[i].id.startsWith("texte_libre__")) {
+                      effectiveGroupe = composition[i].groupe;
+                      break;
+                    }
+                  }
+                }
+
+                return (
+                  <SortableModule
+                    key={module.id}
+                    id={module.id}
+                    label={module.label}
+                    groupe={effectiveGroupe}
+                    isTexteLibre={module.id.startsWith("texte_libre__")}
+                    texte={module.texte || ""}
+                    onRemove={supprimerModule}
+                    onUpdateTexte={updateTexte}
+                  />
+                );
+              })}
             </SortableContext>
-          </DndContext>
-        </main>
-      </div>
+          </main>
+        </div>
+
+        {/* Aperçu visuel pendant le glisser-déposer */}
+        <DragOverlay>
+          {activeDragId === "PALETTE_TEXT" && (
+            <div className="palette-text-item is-overlay">
+              <span className="palette-text-icon">¶</span>
+              <div className="palette-text-content">
+                <div className="palette-text-label">Texte libre</div>
+              </div>
+            </div>
+          )}
+        </DragOverlay>
+      </DndContext>
 
       {/* Modal consentement */}
       {showConsentement && (

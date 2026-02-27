@@ -395,3 +395,128 @@ body {
   border: 1px solid #e2e8f0; border-radius: 8px;
   padding: 10px 20px; cursor: pointer; font-size: 0.9rem;
 }
+
+/* ── Palette texte libre (colonne gauche) ───────────────────────────────── */
+
+.sidebar-palette-section {
+  margin-bottom: 14px;
+}
+
+.palette-text-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: white;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  cursor: grab;
+  user-select: none;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+}
+
+.palette-text-item:hover {
+  border-color: #718096;
+  background: #f7fafc;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.07);
+}
+
+.palette-text-item.is-dragging {
+  opacity: 0.35;
+  cursor: grabbing;
+}
+
+.palette-text-item.is-overlay {
+  opacity: 0.92;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.18);
+  cursor: grabbing;
+  background: white;
+  border-style: solid;
+  border-color: #4a5568;
+}
+
+.palette-text-icon {
+  font-size: 1.15rem;
+  color: #718096;
+  flex-shrink: 0;
+  font-style: normal;
+}
+
+.palette-text-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.palette-text-label {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.palette-text-hint {
+  font-size: 0.72rem;
+  color: #a0aec0;
+  margin-top: 1px;
+}
+
+.palette-drag-handle {
+  color: #cbd5e0;
+  font-size: 1.1rem;
+}
+
+/* ── Bloc texte libre dans la composition ───────────────────────────────── */
+
+.texte-libre-wrapper {
+  background: #fafafa;
+}
+
+.texte-libre-wrapper.groupe-1 { background: #f5faff; }
+.texte-libre-wrapper.groupe-2 { background: #f8f5ff; }
+.texte-libre-wrapper.groupe-3 { background: #f5fff8; }
+.texte-libre-wrapper.groupe-4 { background: #fffcf5; }
+
+.texte-libre-module {
+  align-items: flex-start;
+  padding: 10px 14px;
+}
+
+.texte-libre-input {
+  flex: 1;
+  resize: vertical;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.87rem;
+  font-family: inherit;
+  color: #2d3748;
+  background: white;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-height: 56px;
+  line-height: 1.55;
+}
+
+.texte-libre-input::placeholder { color: #c0c7d0; font-style: italic; }
+
+.texte-libre-input:focus {
+  border-color: #a0aec0;
+  box-shadow: 0 0 0 2px #e2e8f0;
+}
+
+/* Focus coloré selon le groupe hérité */
+.texte-libre-wrapper.groupe-1 .texte-libre-input:focus { border-color: #3182ce; box-shadow: 0 0 0 2px #bee3f8; }
+.texte-libre-wrapper.groupe-2 .texte-libre-input:focus { border-color: #805ad5; box-shadow: 0 0 0 2px #e9d8fd; }
+.texte-libre-wrapper.groupe-3 .texte-libre-input:focus { border-color: #2f855a; box-shadow: 0 0 0 2px #c6f6d5; }
+.texte-libre-wrapper.groupe-4 .texte-libre-input:focus { border-color: #c05621; box-shadow: 0 0 0 2px #feebc8; }
+
+/* ── Placeholder zone vide avec hint de drop ────────────────────────────── */
+
+.placeholder.drop-hint {
+  color: #718096;
+  font-style: normal;
+  font-weight: 500;
+  border: 2px dashed #cbd5e0;
+  border-radius: 8px;
+  padding: 24px;
+  background: #f7fafc;
+}
