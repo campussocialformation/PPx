@@ -287,21 +287,53 @@ function ConsentementModal({ onConfirm, onRefuse }) {
   );
 }
 
+// Zone de dépôt dédiée à un groupe couleur
+function GroupDropZone({ groupeId, label, items, activeDragGroupe, onRemove, onUpdateTexte }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `zone-groupe-${groupeId}` });
+  const isTargeted = activeDragGroupe === groupeId || activeDragGroupe === "text";
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`drop-zone groupe-${groupeId}${isTargeted ? " is-active-target" : ""}${isOver ? " is-over" : ""}`}
+    >
+      <div className="drop-zone-header">{label}</div>
+      <SortableContext items={items.map((m) => m.id)} strategy={verticalListSortingStrategy}>
+        <div className="drop-zone-content">
+          {items.length === 0 && (
+            <div className="drop-zone-empty">
+              {isTargeted ? "↓ Déposez ici" : "Aucun module — utilisez le panneau gauche"}
+            </div>
+          )}
+          {items.map((module) => (
+            <SortableModule
+              key={module.id}
+              id={module.id}
+              label={module.label}
+              groupe={module.groupe}
+              isTexteLibre={module.id.startsWith("texte_libre__")}
+              texte={module.texte || ""}
+              onRemove={onRemove}
+              onUpdateTexte={onUpdateTexte}
+            />
+          ))}
+        </div>
+      </SortableContext>
+    </div>
+  );
+}
+
 export default function App() {
   const [poleActif, setPoleActif] = useState("adulte");
   const [composition, setComposition] = useState([]);
   const [showConsentement, setShowConsentement] = useState(false);
   const [modulePendant, setModulePendant] = useState(null);
   const [activeDragId, setActiveDragId] = useState(null);
+  const [activeDragGroupe, setActiveDragGroupe] = useState(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
   );
-
-  // Zone de dépôt pour la composition (utile quand vide)
-  const { setNodeRef: setCompositionRef } = useDroppable({
-    id: "composition-zone",
-  });
 
   const modules = POLES[poleActif].modules;
 
@@ -378,21 +410,35 @@ export default function App() {
 
   const handleDragStart = ({ active }) => {
     setActiveDragId(active.id);
+    if (active.id === "PALETTE_TEXT") {
+      setActiveDragGroupe("text");
+    } else {
+      const module = composition.find((m) => m.id === active.id);
+      setActiveDragGroupe(module?.groupe ?? null);
+    }
   };
 
   const handleDragEnd = (event) => {
     setActiveDragId(null);
+    setActiveDragGroupe(null);
     const { active, over } = event;
 
     if (!over) return;
 
-    // Cas 1 : dépôt d'un élément texte libre depuis la palette
+    // Cas 1 : dépôt d'un texte libre depuis la palette
     if (active.id === "PALETTE_TEXT") {
+      const overId = String(over.id);
+      let targetGroupe = null;
+      if (overId.startsWith("zone-groupe-")) {
+        targetGroupe = Number(overId.replace("zone-groupe-", ""));
+      } else {
+        const overModule = composition.find((m) => m.id === over.id);
+        targetGroupe = overModule?.groupe ?? null;
+      }
       const newId = `texte_libre__${Date.now()}`;
-      const newItem = { id: newId, label: "Texte libre", groupe: null, texte: "" };
-
+      const newItem = { id: newId, label: "Texte libre", groupe: targetGroupe, texte: "" };
       setComposition((prev) => {
-        if (over.id === "composition-zone") {
+        if (overId.startsWith("zone-groupe-")) {
           return [...prev, newItem];
         }
         const overIndex = prev.findIndex((m) => m.id === over.id);
@@ -406,8 +452,19 @@ export default function App() {
       return;
     }
 
-    // Cas 2 : réordonnancement des éléments de la composition
+    // Cas 2 : réordonnancement dans la même zone de groupe
     if (active.id !== over.id) {
+      const activeModule = composition.find((m) => m.id === active.id);
+      const overId = String(over.id);
+      let overGroupe;
+      if (overId.startsWith("zone-groupe-")) {
+        overGroupe = Number(overId.replace("zone-groupe-", ""));
+      } else {
+        const overModule = composition.find((m) => m.id === over.id);
+        overGroupe = overModule?.groupe ?? null;
+      }
+      // Empêcher le glisser entre zones de groupes différents
+      if (activeModule?.groupe !== overGroupe) return;
       setComposition((prev) => {
         const oldIndex = prev.findIndex((m) => m.id === active.id);
         const newIndex = prev.findIndex((m) => m.id === over.id);
@@ -482,46 +539,20 @@ export default function App() {
             })()}
           </aside>
 
-          {/* Zone de composition */}
-          <main className="composition" ref={setCompositionRef}>
+          {/* Zone de composition — 4 areas dédiées par groupe */}
+          <main className="composition">
             <h2>Composition du projet</h2>
-            {composition.length === 0 && (
-              <p className={`placeholder${activeDragId === "PALETTE_TEXT" ? " drop-hint" : ""}`}>
-                {activeDragId === "PALETTE_TEXT"
-                  ? "Déposez la note ici"
-                  : "Ajoutez des modules depuis le panneau gauche pour composer votre projet."}
-              </p>
-            )}
-            <SortableContext
-              items={composition.map((m) => m.id)}
-              strategy={verticalListSortingStrategy}
-            >
-              {composition.map((module, index) => {
-                // Le texte libre hérite la couleur du bloc précédent dans la mise en page
-                let effectiveGroupe = module.groupe;
-                if (module.id.startsWith("texte_libre__")) {
-                  for (let i = index - 1; i >= 0; i--) {
-                    if (!composition[i].id.startsWith("texte_libre__")) {
-                      effectiveGroupe = composition[i].groupe;
-                      break;
-                    }
-                  }
-                }
-
-                return (
-                  <SortableModule
-                    key={module.id}
-                    id={module.id}
-                    label={module.label}
-                    groupe={effectiveGroupe}
-                    isTexteLibre={module.id.startsWith("texte_libre__")}
-                    texte={module.texte || ""}
-                    onRemove={supprimerModule}
-                    onUpdateTexte={updateTexte}
-                  />
-                );
-              })}
-            </SortableContext>
+            {GROUPES.map((groupe) => (
+              <GroupDropZone
+                key={groupe.id}
+                groupeId={groupe.id}
+                label={groupe.label}
+                items={composition.filter((m) => m.groupe === groupe.id)}
+                activeDragGroupe={activeDragGroupe}
+                onRemove={supprimerModule}
+                onUpdateTexte={updateTexte}
+              />
+            ))}
           </main>
         </div>
 
