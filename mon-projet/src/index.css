@@ -896,3 +896,92 @@ body {
   background: #f0fff4;
   border-color: #2f855a;
 }
+
+/* ── Zones de dépôt dédiées par groupe ─────────────────────────────────── */
+
+.drop-zone {
+  border-radius: 10px;
+  border: 2px solid transparent;
+  margin-bottom: 20px;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  overflow: hidden;
+}
+
+.drop-zone-header {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 14px;
+  color: white;
+  transition: background 0.2s;
+}
+
+.drop-zone.groupe-1 { border-color: #bee3f8; background: #f5faff; }
+.drop-zone.groupe-2 { border-color: #e9d8fd; background: #faf5ff; }
+.drop-zone.groupe-3 { border-color: #c6f6d5; background: #f5fff8; }
+.drop-zone.groupe-4 { border-color: #feebc8; background: #fffcf5; }
+
+.drop-zone.groupe-1 .drop-zone-header { background: #3182ce; }
+.drop-zone.groupe-2 .drop-zone-header { background: #805ad5; }
+.drop-zone.groupe-3 .drop-zone-header { background: #2f855a; }
+.drop-zone.groupe-4 .drop-zone-header { background: #c05621; }
+
+/* Zone ciblée quand l'utilisateur commence à glisser le bon type de bloc */
+.drop-zone.groupe-1.is-active-target {
+  border-color: #3182ce;
+  background: #ebf8ff;
+  box-shadow: 0 0 0 3px #bee3f8;
+}
+.drop-zone.groupe-2.is-active-target {
+  border-color: #805ad5;
+  background: #f3effe;
+  box-shadow: 0 0 0 3px #e9d8fd;
+}
+.drop-zone.groupe-3.is-active-target {
+  border-color: #2f855a;
+  background: #edfff3;
+  box-shadow: 0 0 0 3px #c6f6d5;
+}
+.drop-zone.groupe-4.is-active-target {
+  border-color: #c05621;
+  background: #fff7ed;
+  box-shadow: 0 0 0 3px #feebc8;
+}
+
+/* Survol direct de la zone (pointer dessus) */
+.drop-zone.groupe-1.is-over { background: #dbeeff; }
+.drop-zone.groupe-2.is-over { background: #ede4ff; }
+.drop-zone.groupe-3.is-over { background: #d6ffe7; }
+.drop-zone.groupe-4.is-over { background: #ffecd4; }
+
+.drop-zone-content {
+  padding: 10px 10px 4px;
+  min-height: 64px;
+}
+
+.drop-zone-empty {
+  color: #a0aec0;
+  font-style: italic;
+  font-size: 0.84rem;
+  text-align: center;
+  padding: 16px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 8px;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  margin-bottom: 6px;
+}
+
+/* Indice visuel dans l'area vide quand on glisse le bon bloc */
+.drop-zone.groupe-1.is-active-target .drop-zone-empty {
+  border-color: #3182ce; color: #3182ce; background: #ebf8ff;
+}
+.drop-zone.groupe-2.is-active-target .drop-zone-empty {
+  border-color: #805ad5; color: #805ad5; background: #faf5ff;
+}
+.drop-zone.groupe-3.is-active-target .drop-zone-empty {
+  border-color: #2f855a; color: #2f855a; background: #f0fff4;
+}
+.drop-zone.groupe-4.is-active-target .drop-zone-empty {
+  border-color: #c05621; color: #c05621; background: #fffaf0;
+}
