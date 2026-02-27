@@ -520,3 +520,379 @@ body {
   padding: 24px;
   background: #f7fafc;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODULE : Objectifs et moyens à mettre en œuvre
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.objectifs-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+/* ── En-tête du formulaire ── */
+.objectifs-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  gap: 10px;
+}
+
+.objectifs-form-titre {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #2f855a;
+}
+
+/* ── Bouton info ── */
+.obj-info-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #2f855a;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 20px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.obj-info-btn:hover,
+.obj-info-btn.active {
+  background: #c6f6d5;
+  border-color: #2f855a;
+}
+
+/* ── Bulle d'information SMART ── */
+.obj-info-bubble {
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+  font-size: 0.84rem;
+}
+
+.obj-info-bubble-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.obj-info-bubble-title {
+  font-weight: 700;
+  color: #22543d;
+  font-size: 0.9rem;
+}
+
+.obj-info-close {
+  background: none;
+  border: none;
+  color: #68d391;
+  font-size: 1rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.obj-info-close:hover { color: #22543d; }
+
+.obj-info-intro {
+  color: #276749;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+/* Grille SMART */
+.obj-smart-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.obj-smart-item {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.obj-smart-lettre {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  background: #2f855a;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.obj-smart-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.obj-smart-mot {
+  font-weight: 700;
+  color: #22543d;
+  font-size: 0.82rem;
+}
+
+.obj-smart-desc {
+  color: #2d6a4f;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  margin-top: 1px;
+}
+
+.obj-smart-exemple {
+  color: #52796f;
+  font-size: 0.77rem;
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.obj-info-tip {
+  border-top: 1px solid #9ae6b4;
+  padding-top: 10px;
+  font-size: 0.8rem;
+  color: #276749;
+  line-height: 1.5;
+}
+
+/* ── Bloc objectif individuel ── */
+.objectif-block {
+  background: white;
+  border: 1px solid #c6f6d5;
+  border-left: 4px solid #2f855a;
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.objectif-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.objectif-numero {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #2f855a;
+}
+
+.remove-objectif-btn {
+  background: none;
+  border: none;
+  color: #fc8181;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.remove-objectif-btn:hover { background: #fff5f5; }
+
+/* Input titre objectif */
+.objectif-titre-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #9ae6b4;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  font-weight: 500;
+  color: #1a202c;
+  background: #f0fff4;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.objectif-titre-input::placeholder { color: #a0c4b0; font-weight: 400; font-style: italic; }
+
+.objectif-titre-input:focus {
+  border-color: #2f855a;
+  box-shadow: 0 0 0 2px #c6f6d5;
+  background: white;
+}
+
+/* ── Curseur pondération ── */
+.curseur-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: #f7fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.curseur-extremites {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.curseur-extremite {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #4a5568;
+  line-height: 1.3;
+  text-align: center;
+  max-width: 42%;
+}
+
+.curseur-extremite.gauche { text-align: left; }
+.curseur-extremite.droite { text-align: right; }
+
+.curseur-slider {
+  width: 100%;
+  height: 6px;
+  cursor: pointer;
+  accent-color: var(--curseur-color, #718096);
+  border-radius: 3px;
+}
+
+.curseur-valeur {
+  text-align: center;
+  font-size: 0.77rem;
+  font-weight: 600;
+  transition: color 0.2s;
+  font-style: italic;
+}
+
+/* ── Section moyens ── */
+.moyens-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.moyens-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.moyens-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4a5568;
+}
+
+.add-moyen-btn {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #2f855a;
+  background: #f0fff4;
+  border: 1px solid #9ae6b4;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.add-moyen-btn:hover { background: #c6f6d5; border-color: #2f855a; }
+
+.moyens-vide {
+  font-size: 0.8rem;
+  color: #a0aec0;
+  font-style: italic;
+  padding: 6px 0;
+}
+
+.moyen-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.moyen-puce {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #718096;
+  width: 18px;
+  text-align: right;
+}
+
+.moyen-input {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid #cbd5e0;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-family: inherit;
+  color: #2d3748;
+  background: white;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.moyen-input::placeholder { color: #c0c7d0; font-style: italic; }
+
+.moyen-input:focus {
+  border-color: #2f855a;
+  box-shadow: 0 0 0 2px #c6f6d5;
+}
+
+.remove-moyen-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #fc8181;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.remove-moyen-btn:hover { background: #fff5f5; }
+
+/* ── Bouton ajout objectif ── */
+.add-objectif-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px;
+  background: none;
+  border: 2px dashed #9ae6b4;
+  border-radius: 8px;
+  color: #2f855a;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  margin-top: 4px;
+}
+
+.add-objectif-btn:hover {
+  background: #f0fff4;
+  border-color: #2f855a;
+}
