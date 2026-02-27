@@ -501,6 +501,242 @@ export function AttentesRepresentantLegalForm() {
   );
 }
 
+// ─── Objectifs et moyens à mettre en œuvre ──────────────────────────────────
+
+const SMART_INFO = [
+  {
+    lettre: "S",
+    mot: "Spécifique",
+    desc: "L'objectif est précis et sans ambiguïté. Il répond à la question « Quoi ? »",
+    exemple: "Exemple : « Reprendre une activité sportive adaptée »",
+  },
+  {
+    lettre: "M",
+    mot: "Mesurable",
+    desc: "Des indicateurs concrets permettent de savoir si l'objectif est atteint.",
+    exemple: "Exemple : « 2 séances par semaine »",
+  },
+  {
+    lettre: "A",
+    mot: "Atteignable",
+    desc: "L'objectif est ambitieux mais réalisable compte tenu des capacités de la personne.",
+    exemple: "Exemple : activité choisie parmi celles accessibles à la personne",
+  },
+  {
+    lettre: "R",
+    mot: "Réaliste",
+    desc: "L'objectif s'inscrit dans le contexte et les ressources disponibles (humaines, financières, environnementales).",
+    exemple: "Exemple : structure proposant une activité adaptée à proximité",
+  },
+  {
+    lettre: "T",
+    mot: "Temporel",
+    desc: "Un délai ou une échéance est fixé pour atteindre l'objectif.",
+    exemple: "Exemple : « d'ici 3 mois » ou « avant la prochaine révision du PPP »",
+  },
+];
+
+function InfoBubble({ onClose }) {
+  return (
+    <div className="obj-info-bubble">
+      <div className="obj-info-bubble-header">
+        <span className="obj-info-bubble-title">Comment formuler un objectif ?</span>
+        <button className="obj-info-close" onClick={onClose}>✕</button>
+      </div>
+      <p className="obj-info-intro">
+        Un objectif bien formulé suit la méthode <strong>SMART</strong> :
+      </p>
+      <div className="obj-smart-grid">
+        {SMART_INFO.map(({ lettre, mot, desc, exemple }) => (
+          <div key={lettre} className="obj-smart-item">
+            <div className="obj-smart-lettre">{lettre}</div>
+            <div className="obj-smart-content">
+              <div className="obj-smart-mot">{mot}</div>
+              <div className="obj-smart-desc">{desc}</div>
+              <div className="obj-smart-exemple">{exemple}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="obj-info-tip">
+        <strong>Conseil :</strong> Formulez l'objectif à partir des attentes de la personne <em>et</em> de l'analyse de l'équipe, en cherchant le meilleur équilibre possible.
+      </div>
+    </div>
+  );
+}
+
+function getCurseurLabel(val) {
+  if (val < 20) return { texte: "Fortement centré sur les attentes de la personne", couleur: "#3182ce" };
+  if (val < 40) return { texte: "Plutôt centré sur les attentes de la personne", couleur: "#4299e1" };
+  if (val > 80) return { texte: "Fortement centré sur les besoins identifiés par l'équipe", couleur: "#2f855a" };
+  if (val > 60) return { texte: "Plutôt centré sur les besoins identifiés par l'équipe", couleur: "#38a169" };
+  return { texte: "Équilibre attentes / besoins équipe", couleur: "#718096" };
+}
+
+export function ObjectifsForm() {
+  const [objectifs, setObjectifs] = useState([
+    { id: Date.now(), titre: "", curseur: 50, moyens: [] },
+  ]);
+  const [showInfo, setShowInfo] = useState(false);
+
+  const addObjectif = () =>
+    setObjectifs((prev) => [
+      ...prev,
+      { id: Date.now(), titre: "", curseur: 50, moyens: [] },
+    ]);
+
+  const removeObjectif = (objId) =>
+    setObjectifs((prev) => prev.filter((o) => o.id !== objId));
+
+  const updateTitre = (objId, titre) =>
+    setObjectifs((prev) =>
+      prev.map((o) => (o.id === objId ? { ...o, titre } : o))
+    );
+
+  const updateCurseur = (objId, curseur) =>
+    setObjectifs((prev) =>
+      prev.map((o) => (o.id === objId ? { ...o, curseur: Number(curseur) } : o))
+    );
+
+  const addMoyen = (objId) =>
+    setObjectifs((prev) =>
+      prev.map((o) =>
+        o.id === objId
+          ? { ...o, moyens: [...o.moyens, { id: Date.now(), contenu: "" }] }
+          : o
+      )
+    );
+
+  const removeMoyen = (objId, moyenId) =>
+    setObjectifs((prev) =>
+      prev.map((o) =>
+        o.id === objId
+          ? { ...o, moyens: o.moyens.filter((m) => m.id !== moyenId) }
+          : o
+      )
+    );
+
+  const updateMoyen = (objId, moyenId, contenu) =>
+    setObjectifs((prev) =>
+      prev.map((o) =>
+        o.id === objId
+          ? {
+              ...o,
+              moyens: o.moyens.map((m) =>
+                m.id === moyenId ? { ...m, contenu } : m
+              ),
+            }
+          : o
+      )
+    );
+
+  return (
+    <div className="objectifs-form">
+      {/* En-tête avec bouton info */}
+      <div className="objectifs-form-header">
+        <span className="objectifs-form-titre">Objectifs et moyens à mettre en œuvre</span>
+        <button
+          className={`obj-info-btn${showInfo ? " active" : ""}`}
+          onClick={() => setShowInfo((v) => !v)}
+          title="Aide : comment formuler un objectif ?"
+        >
+          ⓘ Aide
+        </button>
+      </div>
+
+      {showInfo && <InfoBubble onClose={() => setShowInfo(false)} />}
+
+      {/* Liste des objectifs */}
+      {objectifs.map((obj, index) => {
+        const curseurInfo = getCurseurLabel(obj.curseur);
+        return (
+          <div key={obj.id} className="objectif-block">
+            {/* Titre de l'objectif */}
+            <div className="objectif-block-header">
+              <span className="objectif-numero">Objectif {index + 1}</span>
+              {objectifs.length > 1 && (
+                <button
+                  className="remove-objectif-btn"
+                  onClick={() => removeObjectif(obj.id)}
+                  title="Supprimer cet objectif"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+            <input
+              className="objectif-titre-input"
+              type="text"
+              placeholder="Formuler l'objectif ici (méthode SMART)…"
+              value={obj.titre}
+              onChange={(e) => updateTitre(obj.id, e.target.value)}
+            />
+
+            {/* Curseur pondération */}
+            <div className="curseur-section">
+              <div className="curseur-extremites">
+                <span className="curseur-extremite gauche">Attentes<br />de la personne</span>
+                <span className="curseur-extremite droite">Besoins identifiés<br />par l'équipe</span>
+              </div>
+              <input
+                type="range"
+                min="0"
+                max="100"
+                value={obj.curseur}
+                onChange={(e) => updateCurseur(obj.id, e.target.value)}
+                className="curseur-slider"
+                style={{ "--curseur-color": curseurInfo.couleur }}
+              />
+              <div className="curseur-valeur" style={{ color: curseurInfo.couleur }}>
+                {curseurInfo.texte}
+              </div>
+            </div>
+
+            {/* Moyens */}
+            <div className="moyens-section">
+              <div className="moyens-section-header">
+                <span className="moyens-section-label">Moyens à mettre en œuvre</span>
+                <button
+                  className="add-moyen-btn"
+                  onClick={() => addMoyen(obj.id)}
+                >
+                  + Ajouter un moyen
+                </button>
+              </div>
+              {obj.moyens.length === 0 && (
+                <p className="moyens-vide">Aucun moyen défini. Cliquez sur « + Ajouter un moyen ».</p>
+              )}
+              {obj.moyens.map((moyen, mIdx) => (
+                <div key={moyen.id} className="moyen-item">
+                  <span className="moyen-puce">{mIdx + 1}.</span>
+                  <input
+                    type="text"
+                    className="moyen-input"
+                    placeholder="Décrire le moyen à mettre en œuvre…"
+                    value={moyen.contenu}
+                    onChange={(e) => updateMoyen(obj.id, moyen.id, e.target.value)}
+                  />
+                  <button
+                    className="remove-moyen-btn"
+                    onClick={() => removeMoyen(obj.id, moyen.id)}
+                    title="Supprimer ce moyen"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })}
+
+      <button className="add-objectif-btn" onClick={addObjectif}>
+        + Ajouter un objectif
+      </button>
+    </div>
+  );
+}
+
 // ─── Bloc analyse pluriprofessionnelle (générique, répétable) ───────────────
 export function PluriproBlockForm() {
   const [titre, setTitre] = useState("");
@@ -550,6 +786,8 @@ const FORM_MAP = {
   "analyse_equipe__social": PluriproBlockForm,
   "analyse_equipe__educatif": PluriproBlockForm,
   "analyse_equipe__loisirs": PluriproBlockForm,
+  // Objectifs et moyens à mettre en œuvre
+  "objectifs": ObjectifsForm,
 };
 
 export function getIdentiteForm(moduleId) {

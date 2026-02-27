@@ -152,7 +152,7 @@ function DraggableTextItem() {
 
 // Composant module draggable dans la zone de composition
 function SortableModule({ id, label, groupe, isTexteLibre, texte, onRemove, onUpdateTexte }) {
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(id === "objectifs");
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id });
   const style = {
