@@ -17,9 +17,9 @@ import { getIdentiteForm } from "./IdentiteModules";
 
 // Légende des groupes couleur
 const GROUPES = [
-  { id: 1, label: "Situation et parcours" },
-  { id: 2, label: "Attentes et évaluation" },
-  { id: 3, label: "Plan d'action et suivi" },
+  { id: 1, label: "Identité et éléments du parcours" },
+  { id: 2, label: "Analyse des attentes et besoins" },
+  { id: 3, label: "Projet" },
   { id: 4, label: "Vie quotidienne" },
 ];
 
@@ -30,7 +30,7 @@ const POLES = {
     modules: [
       {
         id: "identite",
-        label: "Identité et situation administrative",
+        label: "Identité et éléments du parcours",
         obligatoire: true,
         groupe: 1,
         sousModules: [
@@ -42,18 +42,6 @@ const POLES = {
           { id: "droits_logement", label: "Accès aux droits logement" },
           { id: "droits_emploi", label: "Accès aux droits emploi" },
           { id: "droits_divers", label: "Accès aux droits divers" },
-        ],
-      },
-      {
-        id: "parcours_precedent",
-        label: "Éléments du précédent parcours",
-        obligatoire: true,
-        groupe: 1,
-        sousModules: [
-          { id: "parcours_scolaire", label: "Parcours scolaire" },
-          { id: "parcours_institutionnel", label: "Parcours institutionnel" },
-          { id: "parcours_familial", label: "Parcours familial" },
-          { id: "parcours_geographique", label: "Parcours géographique" },
         ],
       },
       {
@@ -353,24 +341,32 @@ export default function App() {
         <aside className="sidebar">
           <h2>Modules disponibles</h2>
 
-          {/* Légende couleurs */}
-          <div className="groupes-legend">
-            {GROUPES.map((g) => (
-              <div key={g.id} className={`legende-item groupe-dot-${g.id}`}>
-                <span className="legende-dot" />
-                <span className="legende-label">{g.label}</span>
-              </div>
-            ))}
-          </div>
-
-          {modules.map((module) => (
-            <ModuleBox
-              key={module.id}
-              module={module}
-              onAdd={ajouterModule}
-              onAddSub={ajouterSousModule}
-            />
-          ))}
+          {(() => {
+            const groups = {};
+            modules.forEach((m) => {
+              const g = m.groupe ?? 0;
+              if (!groups[g]) groups[g] = [];
+              groups[g].push(m);
+            });
+            return Object.entries(groups).map(([gId, gModules]) => {
+              const groupeInfo = GROUPES.find((g) => g.id === Number(gId));
+              return (
+                <div key={gId} className={`sidebar-group groupe-${gId}`}>
+                  {groupeInfo && (
+                    <div className="sidebar-group-header">{groupeInfo.label}</div>
+                  )}
+                  {gModules.map((module) => (
+                    <ModuleBox
+                      key={module.id}
+                      module={module}
+                      onAdd={ajouterModule}
+                      onAddSub={ajouterSousModule}
+                    />
+                  ))}
+                </div>
+              );
+            });
+          })()}
         </aside>
 
         {/* Zone de composition */}

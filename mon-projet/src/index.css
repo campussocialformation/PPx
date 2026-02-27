@@ -126,71 +126,64 @@ body {
   font-size: 1rem;
 }
 
-/* ── Légende couleurs sidebar ────────────────────────────────────────────── */
+/* ── Sidebar group blocks ───────────────────────────────────────────────── */
 
-.groupes-legend {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 14px;
-  padding: 10px 12px;
-  background: #f7fafc;
+.sidebar-group {
   border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 14px;
   border: 1px solid #e2e8f0;
 }
 
-.legende-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.76rem;
-  font-weight: 500;
-  color: #4a5568;
+.sidebar-group-header {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 7px 12px;
+  color: white;
 }
 
-.legende-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.sidebar-group.groupe-1 { border-left: 4px solid #3182ce; }
+.sidebar-group.groupe-2 { border-left: 4px solid #805ad5; }
+.sidebar-group.groupe-3 { border-left: 4px solid #2f855a; }
+.sidebar-group.groupe-4 { border-left: 4px solid #c05621; }
+
+.sidebar-group.groupe-1 .sidebar-group-header { background: #3182ce; }
+.sidebar-group.groupe-2 .sidebar-group-header { background: #805ad5; }
+.sidebar-group.groupe-3 .sidebar-group-header { background: #2f855a; }
+.sidebar-group.groupe-4 .sidebar-group-header { background: #c05621; }
+
+/* Modules inside group: seamless block, no individual borders */
+.sidebar-group .module-box {
+  border: none;
+  border-radius: 0;
+  margin-bottom: 0;
 }
 
-.groupe-dot-1 .legende-dot { background: #3182ce; }
-.groupe-dot-2 .legende-dot { background: #805ad5; }
-.groupe-dot-3 .legende-dot { background: #2f855a; }
-.groupe-dot-4 .legende-dot { background: #c05621; }
+.sidebar-group .module-box + .module-box {
+  border-top: 1px solid #e2e8f0;
+}
 
-.groupe-dot-1 { color: #2c5282; }
-.groupe-dot-2 { color: #553c9a; }
-.groupe-dot-3 { color: #276749; }
-.groupe-dot-4 { color: #7b341e; }
+.sidebar-group.groupe-1 .module-box-header { background: #ebf8ff; }
+.sidebar-group.groupe-2 .module-box-header { background: #faf5ff; }
+.sidebar-group.groupe-3 .module-box-header { background: #f0fff4; }
+.sidebar-group.groupe-4 .module-box-header { background: #fffaf0; }
 
-/* ── Codes couleur sidebar (module-box) ─────────────────────────────────── */
+.sidebar-group.groupe-1 .module-box-header:hover { background: #bee3f8; }
+.sidebar-group.groupe-2 .module-box-header:hover { background: #e9d8fd; }
+.sidebar-group.groupe-3 .module-box-header:hover { background: #c6f6d5; }
+.sidebar-group.groupe-4 .module-box-header:hover { background: #feebc8; }
 
-.module-box.groupe-1 { border-left: 4px solid #3182ce; }
-.module-box.groupe-2 { border-left: 4px solid #805ad5; }
-.module-box.groupe-3 { border-left: 4px solid #2f855a; }
-.module-box.groupe-4 { border-left: 4px solid #c05621; }
+.sidebar-group.groupe-1 .add-btn { background: #3182ce; }
+.sidebar-group.groupe-2 .add-btn { background: #805ad5; }
+.sidebar-group.groupe-3 .add-btn { background: #2f855a; }
+.sidebar-group.groupe-4 .add-btn { background: #c05621; }
 
-.module-box.groupe-1 .module-box-header { background: #ebf8ff; }
-.module-box.groupe-2 .module-box-header { background: #faf5ff; }
-.module-box.groupe-3 .module-box-header { background: #f0fff4; }
-.module-box.groupe-4 .module-box-header { background: #fffaf0; }
-
-.module-box.groupe-1 .module-box-header:hover { background: #bee3f8; }
-.module-box.groupe-2 .module-box-header:hover { background: #e9d8fd; }
-.module-box.groupe-3 .module-box-header:hover { background: #c6f6d5; }
-.module-box.groupe-4 .module-box-header:hover { background: #feebc8; }
-
-.module-box.groupe-1 .add-btn { background: #3182ce; }
-.module-box.groupe-2 .add-btn { background: #805ad5; }
-.module-box.groupe-3 .add-btn { background: #2f855a; }
-.module-box.groupe-4 .add-btn { background: #c05621; }
-
-.module-box.groupe-1 .add-btn-all { color: #3182ce; border-color: #3182ce; }
-.module-box.groupe-2 .add-btn-all { color: #805ad5; border-color: #805ad5; }
-.module-box.groupe-3 .add-btn-all { color: #2f855a; border-color: #2f855a; }
-.module-box.groupe-4 .add-btn-all { color: #c05621; border-color: #c05621; }
+.sidebar-group.groupe-1 .add-btn-all { color: #3182ce; border-color: #3182ce; }
+.sidebar-group.groupe-2 .add-btn-all { color: #805ad5; border-color: #805ad5; }
+.sidebar-group.groupe-3 .add-btn-all { color: #2f855a; border-color: #2f855a; }
+.sidebar-group.groupe-4 .add-btn-all { color: #c05621; border-color: #c05621; }
 
 /* ── Module draggable (avec ou sans formulaire) ─────────────────────────── */
 
