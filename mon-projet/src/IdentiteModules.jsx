@@ -447,6 +447,88 @@ export function DroitsDiversForm() {
   );
 }
 
+// ─── Attentes de la personne ────────────────────────────────────────────────
+export function AttentesPersonneForm() {
+  const [texte, setTexte] = useState("");
+  return (
+    <div className="identite-form">
+      <div className="form-group">
+        <label>Attentes exprimées par la personne</label>
+        <textarea
+          value={texte}
+          onChange={(e) => setTexte(e.target.value)}
+          placeholder="Décrivez les attentes de la personne…"
+          rows={5}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Attentes des proches aidants ───────────────────────────────────────────
+export function AttentesProcheAidantsForm() {
+  const [texte, setTexte] = useState("");
+  return (
+    <div className="identite-form">
+      <div className="form-group">
+        <label>Attentes exprimées par les proches aidants</label>
+        <textarea
+          value={texte}
+          onChange={(e) => setTexte(e.target.value)}
+          placeholder="Décrivez les attentes des proches aidants…"
+          rows={5}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Attentes du représentant légal ────────────────────────────────────────
+export function AttentesRepresentantLegalForm() {
+  const [texte, setTexte] = useState("");
+  return (
+    <div className="identite-form">
+      <div className="form-group">
+        <label>Attentes exprimées par le représentant légal</label>
+        <textarea
+          value={texte}
+          onChange={(e) => setTexte(e.target.value)}
+          placeholder="Décrivez les attentes du représentant légal…"
+          rows={5}
+        />
+      </div>
+    </div>
+  );
+}
+
+// ─── Bloc analyse pluriprofessionnelle (générique, répétable) ───────────────
+export function PluriproBlockForm() {
+  const [titre, setTitre] = useState("");
+  const [detail, setDetail] = useState("");
+  return (
+    <div className="identite-form">
+      <div className="form-group">
+        <label>Titre du bloc</label>
+        <input
+          type="text"
+          value={titre}
+          onChange={(e) => setTitre(e.target.value)}
+          placeholder="Ex : Analyse du médecin traitant, Suivi de l'éducatrice…"
+        />
+      </div>
+      <div className="form-group">
+        <label>Analyse / Détail</label>
+        <textarea
+          value={detail}
+          onChange={(e) => setDetail(e.target.value)}
+          placeholder="Détaillez l'analyse ici…"
+          rows={5}
+        />
+      </div>
+    </div>
+  );
+}
+
 // ─── Helper : retourne le composant formulaire selon l'id du module ────────────
 const FORM_MAP = {
   "identite__etat_civil": EtatCivilForm,
@@ -457,8 +539,26 @@ const FORM_MAP = {
   "identite__droits_logement": DroitsLogementForm,
   "identite__droits_emploi": DroitsEmploiForm,
   "identite__droits_divers": DroitsDiversForm,
+  // Recueil des attentes
+  "recueil_attentes__personne": AttentesPersonneForm,
+  "recueil_attentes__proches_aidants": AttentesProcheAidantsForm,
+  "recueil_attentes__representant_legal": AttentesRepresentantLegalForm,
+  // Analyse pluriprofessionnelle (blocs répétables par catégorie)
+  "analyse_equipe__medical": PluriproBlockForm,
+  "analyse_equipe__paramedical": PluriproBlockForm,
+  "analyse_equipe__psychologique": PluriproBlockForm,
+  "analyse_equipe__social": PluriproBlockForm,
+  "analyse_equipe__educatif": PluriproBlockForm,
+  "analyse_equipe__loisirs": PluriproBlockForm,
 };
 
 export function getIdentiteForm(moduleId) {
-  return FORM_MAP[moduleId] || null;
+  if (FORM_MAP[moduleId]) return FORM_MAP[moduleId];
+  // Prefix match for repeatable items (e.g. "analyse_equipe__medical__1718000000000")
+  const lastSep = moduleId.lastIndexOf("__");
+  if (lastSep !== -1) {
+    const baseId = moduleId.substring(0, lastSep);
+    if (FORM_MAP[baseId]) return FORM_MAP[baseId];
+  }
+  return null;
 }

@@ -52,8 +52,11 @@ const POLES = {
         label: "Recueil des attentes",
         obligatoire: true,
         groupe: 2,
-        sousModules: null,
-        consentement: true,
+        sousModules: [
+          { id: "personne", label: "Attentes de la personne" },
+          { id: "proches_aidants", label: "Attentes des proches aidants", consentement: true },
+          { id: "representant_legal", label: "Attentes du représentant légal", consentement: true },
+        ],
       },
       {
         id: "analyse_equipe",
@@ -61,12 +64,12 @@ const POLES = {
         obligatoire: true,
         groupe: 2,
         sousModules: [
-          { id: "educ_coordo", label: "Éducateur coordinateur" },
-          { id: "equipe_quotidien", label: "Équipe du quotidien" },
-          { id: "ergo", label: "Ergothérapeute" },
-          { id: "psychomot", label: "Psychomotricien" },
-          { id: "medecin_general", label: "Médecin généraliste" },
-          { id: "medecin_psy", label: "Médecin psychiatre" },
+          { id: "medical", label: "Médical", repeatable: true },
+          { id: "paramedical", label: "Paramédical", repeatable: true },
+          { id: "psychologique", label: "Suivi psychologique", repeatable: true },
+          { id: "social", label: "Social", repeatable: true },
+          { id: "educatif", label: "Éducatif", repeatable: true },
+          { id: "loisirs", label: "Loisirs", repeatable: true },
         ],
       },
       {
@@ -234,9 +237,9 @@ function ModuleBox({ module, onAdd, onAddSub }) {
           <button
             className="add-btn-all"
             onClick={() =>
-              module.sousModules.forEach((s) =>
-                onAddSub(s, module.id, module.groupe)
-              )
+              module.sousModules
+                .filter((s) => !s.consentement)
+                .forEach((s) => onAddSub(s, module.id, module.groupe))
             }
           >
             + Tout ajouter
@@ -317,12 +320,25 @@ export default function App() {
   };
 
   const ajouterSousModule = (sub, parentId, groupe) => {
-    const compositeId = `${parentId}__${sub.id}`;
-    if (!composition.find((m) => m.id === compositeId)) {
-      setComposition([
-        ...composition,
-        { id: compositeId, label: sub.label, groupe },
+    if (sub.consentement) {
+      setModulePendant({ ...sub, parentId, groupe, isSub: true });
+      setShowConsentement(true);
+      return;
+    }
+    if (sub.repeatable) {
+      const uniqueId = `${parentId}__${sub.id}__${Date.now()}`;
+      setComposition((prev) => [
+        ...prev,
+        { id: uniqueId, label: sub.label, groupe },
       ]);
+    } else {
+      const compositeId = `${parentId}__${sub.id}`;
+      if (!composition.find((m) => m.id === compositeId)) {
+        setComposition([
+          ...composition,
+          { id: compositeId, label: sub.label, groupe },
+        ]);
+      }
     }
   };
 
@@ -336,15 +352,21 @@ export default function App() {
 
   const handleConsentementConfirm = () => {
     setShowConsentement(false);
-    if (modulePendant && !composition.find((m) => m.id === modulePendant.id)) {
-      setComposition([
-        ...composition,
-        {
-          id: modulePendant.id,
-          label: modulePendant.label,
-          groupe: modulePendant.groupe,
-        },
-      ]);
+    if (modulePendant) {
+      if (modulePendant.isSub) {
+        const compositeId = `${modulePendant.parentId}__${modulePendant.id}`;
+        if (!composition.find((m) => m.id === compositeId)) {
+          setComposition([
+            ...composition,
+            { id: compositeId, label: modulePendant.label, groupe: modulePendant.groupe },
+          ]);
+        }
+      } else if (!composition.find((m) => m.id === modulePendant.id)) {
+        setComposition([
+          ...composition,
+          { id: modulePendant.id, label: modulePendant.label, groupe: modulePendant.groupe },
+        ]);
+      }
     }
     setModulePendant(null);
   };
