@@ -901,9 +901,9 @@ body {
 
 .drop-zone {
   border-radius: 10px;
-  border: 2px solid transparent;
+  border: 2px dashed transparent;
   margin-bottom: 20px;
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.3s;
   overflow: hidden;
 }
 
@@ -913,47 +913,48 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 8px 14px;
-  color: white;
-  transition: background 0.2s;
+  transition: background 0.3s, color 0.3s;
 }
 
-.drop-zone.groupe-1 { border-color: #bee3f8; background: #f5faff; }
-.drop-zone.groupe-2 { border-color: #e9d8fd; background: #faf5ff; }
-.drop-zone.groupe-3 { border-color: #c6f6d5; background: #f5fff8; }
-.drop-zone.groupe-4 { border-color: #feebc8; background: #fffcf5; }
+/* État de repos : suggestion subtile, très discrète */
+.drop-zone.groupe-1 { border-color: rgba(190, 227, 248, 0.55); background: rgba(249, 252, 255, 0.35); }
+.drop-zone.groupe-2 { border-color: rgba(233, 216, 253, 0.55); background: rgba(252, 249, 255, 0.35); }
+.drop-zone.groupe-3 { border-color: rgba(198, 246, 213, 0.55); background: rgba(249, 255, 251, 0.35); }
+.drop-zone.groupe-4 { border-color: rgba(254, 235, 200, 0.55); background: rgba(255, 253, 249, 0.35); }
 
-.drop-zone.groupe-1 .drop-zone-header { background: #3182ce; }
-.drop-zone.groupe-2 .drop-zone-header { background: #805ad5; }
-.drop-zone.groupe-3 .drop-zone-header { background: #2f855a; }
-.drop-zone.groupe-4 .drop-zone-header { background: #c05621; }
+/* Headers : très légers, texte coloré assorti au groupe */
+.drop-zone.groupe-1 .drop-zone-header { background: rgba(49, 130, 206, 0.07); color: #3182ce; }
+.drop-zone.groupe-2 .drop-zone-header { background: rgba(128, 90, 213, 0.07); color: #805ad5; }
+.drop-zone.groupe-3 .drop-zone-header { background: rgba(47, 133, 90, 0.07); color: #2f855a; }
+.drop-zone.groupe-4 .drop-zone-header { background: rgba(192, 86, 33, 0.07); color: #c05621; }
 
 /* Zone ciblée quand l'utilisateur commence à glisser le bon type de bloc */
 .drop-zone.groupe-1.is-active-target {
-  border-color: #3182ce;
-  background: #ebf8ff;
-  box-shadow: 0 0 0 3px #bee3f8;
+  border-color: rgba(49, 130, 206, 0.5);
+  background: rgba(235, 248, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(190, 227, 248, 0.4);
 }
 .drop-zone.groupe-2.is-active-target {
-  border-color: #805ad5;
-  background: #f3effe;
-  box-shadow: 0 0 0 3px #e9d8fd;
+  border-color: rgba(128, 90, 213, 0.5);
+  background: rgba(243, 239, 254, 0.6);
+  box-shadow: 0 0 0 2px rgba(233, 216, 253, 0.4);
 }
 .drop-zone.groupe-3.is-active-target {
-  border-color: #2f855a;
-  background: #edfff3;
-  box-shadow: 0 0 0 3px #c6f6d5;
+  border-color: rgba(47, 133, 90, 0.5);
+  background: rgba(237, 255, 243, 0.6);
+  box-shadow: 0 0 0 2px rgba(198, 246, 213, 0.4);
 }
 .drop-zone.groupe-4.is-active-target {
-  border-color: #c05621;
-  background: #fff7ed;
-  box-shadow: 0 0 0 3px #feebc8;
+  border-color: rgba(192, 86, 33, 0.5);
+  background: rgba(255, 247, 237, 0.6);
+  box-shadow: 0 0 0 2px rgba(254, 235, 200, 0.4);
 }
 
 /* Survol direct de la zone (pointer dessus) */
-.drop-zone.groupe-1.is-over { background: #dbeeff; }
-.drop-zone.groupe-2.is-over { background: #ede4ff; }
-.drop-zone.groupe-3.is-over { background: #d6ffe7; }
-.drop-zone.groupe-4.is-over { background: #ffecd4; }
+.drop-zone.groupe-1.is-over { background: rgba(219, 238, 255, 0.55); }
+.drop-zone.groupe-2.is-over { background: rgba(237, 228, 255, 0.55); }
+.drop-zone.groupe-3.is-over { background: rgba(214, 255, 231, 0.55); }
+.drop-zone.groupe-4.is-over { background: rgba(255, 236, 212, 0.55); }
 
 .drop-zone-content {
   padding: 10px 10px 4px;
@@ -961,27 +962,27 @@ body {
 }
 
 .drop-zone-empty {
-  color: #a0aec0;
+  color: #c0cad8;
   font-style: italic;
   font-size: 0.84rem;
   text-align: center;
   padding: 16px;
-  border: 2px dashed #e2e8f0;
+  border: 1.5px dashed #dde3ea;
   border-radius: 8px;
-  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  transition: border-color 0.3s, color 0.3s, background 0.3s;
   margin-bottom: 6px;
 }
 
 /* Indice visuel dans l'area vide quand on glisse le bon bloc */
 .drop-zone.groupe-1.is-active-target .drop-zone-empty {
-  border-color: #3182ce; color: #3182ce; background: #ebf8ff;
+  border-color: rgba(49, 130, 206, 0.45); color: #3182ce; background: rgba(235, 248, 255, 0.45);
 }
 .drop-zone.groupe-2.is-active-target .drop-zone-empty {
-  border-color: #805ad5; color: #805ad5; background: #faf5ff;
+  border-color: rgba(128, 90, 213, 0.45); color: #805ad5; background: rgba(250, 245, 255, 0.45);
 }
 .drop-zone.groupe-3.is-active-target .drop-zone-empty {
-  border-color: #2f855a; color: #2f855a; background: #f0fff4;
+  border-color: rgba(47, 133, 90, 0.45); color: #2f855a; background: rgba(240, 255, 244, 0.45);
 }
 .drop-zone.groupe-4.is-active-target .drop-zone-empty {
-  border-color: #c05621; color: #c05621; background: #fffaf0;
+  border-color: rgba(192, 86, 33, 0.45); color: #c05621; background: rgba(255, 250, 240, 0.45);
 }
