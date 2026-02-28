@@ -16,7 +16,7 @@ import {
   arrayMove,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { getIdentiteForm } from "./IdentiteModules";
+import { getIdentiteForm, PPContext } from "./IdentiteModules";
 
 // Légende des groupes couleur
 const GROUPES = [
@@ -24,6 +24,7 @@ const GROUPES = [
   { id: 2, label: "Analyse des attentes et besoins" },
   { id: 3, label: "Projet" },
   { id: 4, label: "Vie quotidienne" },
+  { id: 5, label: "Bilans et évaluations" },
 ];
 
 // Configuration des modules par pôle
@@ -80,22 +81,8 @@ const POLES = {
         sousModules: null,
       },
       {
-        id: "parcours_futur",
-        label: "Éléments du parcours futur",
-        obligatoire: true,
-        groupe: 3,
-        sousModules: null,
-      },
-      {
         id: "reseau",
         label: "Réseau et partenaires",
-        obligatoire: true,
-        groupe: 3,
-        sousModules: null,
-      },
-      {
-        id: "bilan",
-        label: "Bilan et évaluation",
         obligatoire: true,
         groupe: 3,
         sousModules: null,
@@ -113,6 +100,16 @@ const POLES = {
           { id: "hv_communication", label: "Communication" },
           { id: "hv_mobilite", label: "Mobilités et déplacements" },
           { id: "hv_sociale", label: "Vie sociale et culturelle" },
+        ],
+      },
+      {
+        id: "bilan",
+        label: "Bilans et évaluations",
+        obligatoire: true,
+        groupe: 5,
+        sousModules: [
+          { id: "eval_objectifs_pp", label: "Évaluation des objectifs du PP" },
+          { id: "eval_stage", label: "Évaluation de stage et accueil temporaire" },
         ],
       },
     ],
@@ -330,6 +327,7 @@ export default function App() {
   const [modulePendant, setModulePendant] = useState(null);
   const [activeDragId, setActiveDragId] = useState(null);
   const [activeDragGroupe, setActiveDragGroupe] = useState(null);
+  const [objectifsData, setObjectifsData] = useState([]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } })
@@ -477,105 +475,107 @@ export default function App() {
   };
 
   return (
-    <div className="app">
-      {/* Barre du haut */}
-      <header className="header">
-        <h1>Projet Personnalisé</h1>
-        <select
-          className="pole-select"
-          value={poleActif}
-          onChange={(e) => {
-            setPoleActif(e.target.value);
-            setComposition([]);
-          }}
+    <PPContext.Provider value={{ objectifsData, setObjectifsData }}>
+      <div className="app">
+        {/* Barre du haut */}
+        <header className="header">
+          <h1>Projet Personnalisé</h1>
+          <select
+            className="pole-select"
+            value={poleActif}
+            onChange={(e) => {
+              setPoleActif(e.target.value);
+              setComposition([]);
+            }}
+          >
+            <option value="adulte">Pôle Adulte</option>
+            <option value="enfant">Pôle Enfant</option>
+            <option value="pro">Pôle Pro</option>
+          </select>
+        </header>
+
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
         >
-          <option value="adulte">Pôle Adulte</option>
-          <option value="enfant">Pôle Enfant</option>
-          <option value="pro">Pôle Pro</option>
-        </select>
-      </header>
+          <div className="main">
+            {/* Panneau gauche */}
+            <aside className="sidebar">
+              <h2>Modules disponibles</h2>
 
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="main">
-          {/* Panneau gauche */}
-          <aside className="sidebar">
-            <h2>Modules disponibles</h2>
-
-            {/* Élément texte libre — glissable à volonté */}
-            <div className="sidebar-palette-section">
-              <DraggableTextItem />
-            </div>
-
-            {(() => {
-              const groups = {};
-              modules.forEach((m) => {
-                const g = m.groupe ?? 0;
-                if (!groups[g]) groups[g] = [];
-                groups[g].push(m);
-              });
-              return Object.entries(groups).map(([gId, gModules]) => {
-                const groupeInfo = GROUPES.find((g) => g.id === Number(gId));
-                return (
-                  <div key={gId} className={`sidebar-group groupe-${gId}`}>
-                    {groupeInfo && (
-                      <div className="sidebar-group-header">{groupeInfo.label}</div>
-                    )}
-                    {gModules.map((module) => (
-                      <ModuleBox
-                        key={module.id}
-                        module={module}
-                        onAdd={ajouterModule}
-                        onAddSub={ajouterSousModule}
-                      />
-                    ))}
-                  </div>
-                );
-              });
-            })()}
-          </aside>
-
-          {/* Zone de composition — 4 areas dédiées par groupe */}
-          <main className="composition">
-            <h2>Composition du projet</h2>
-            {GROUPES.map((groupe) => (
-              <GroupDropZone
-                key={groupe.id}
-                groupeId={groupe.id}
-                label={groupe.label}
-                items={composition.filter((m) => m.groupe === groupe.id)}
-                activeDragGroupe={activeDragGroupe}
-                onRemove={supprimerModule}
-                onUpdateTexte={updateTexte}
-              />
-            ))}
-          </main>
-        </div>
-
-        {/* Aperçu visuel pendant le glisser-déposer */}
-        <DragOverlay>
-          {activeDragId === "PALETTE_TEXT" && (
-            <div className="palette-text-item is-overlay">
-              <span className="palette-text-icon">¶</span>
-              <div className="palette-text-content">
-                <div className="palette-text-label">Texte libre</div>
+              {/* Élément texte libre — glissable à volonté */}
+              <div className="sidebar-palette-section">
+                <DraggableTextItem />
               </div>
-            </div>
-          )}
-        </DragOverlay>
-      </DndContext>
 
-      {/* Modal consentement */}
-      {showConsentement && (
-        <ConsentementModal
-          onConfirm={handleConsentementConfirm}
-          onRefuse={handleConsentementRefuse}
-        />
-      )}
-    </div>
+              {(() => {
+                const groups = {};
+                modules.forEach((m) => {
+                  const g = m.groupe ?? 0;
+                  if (!groups[g]) groups[g] = [];
+                  groups[g].push(m);
+                });
+                return Object.entries(groups).map(([gId, gModules]) => {
+                  const groupeInfo = GROUPES.find((g) => g.id === Number(gId));
+                  return (
+                    <div key={gId} className={`sidebar-group groupe-${gId}`}>
+                      {groupeInfo && (
+                        <div className="sidebar-group-header">{groupeInfo.label}</div>
+                      )}
+                      {gModules.map((module) => (
+                        <ModuleBox
+                          key={module.id}
+                          module={module}
+                          onAdd={ajouterModule}
+                          onAddSub={ajouterSousModule}
+                        />
+                      ))}
+                    </div>
+                  );
+                });
+              })()}
+            </aside>
+
+            {/* Zone de composition — areas dédiées par groupe */}
+            <main className="composition">
+              <h2>Composition du projet</h2>
+              {GROUPES.map((groupe) => (
+                <GroupDropZone
+                  key={groupe.id}
+                  groupeId={groupe.id}
+                  label={groupe.label}
+                  items={composition.filter((m) => m.groupe === groupe.id)}
+                  activeDragGroupe={activeDragGroupe}
+                  onRemove={supprimerModule}
+                  onUpdateTexte={updateTexte}
+                />
+              ))}
+            </main>
+          </div>
+
+          {/* Aperçu visuel pendant le glisser-déposer */}
+          <DragOverlay>
+            {activeDragId === "PALETTE_TEXT" && (
+              <div className="palette-text-item is-overlay">
+                <span className="palette-text-icon">¶</span>
+                <div className="palette-text-content">
+                  <div className="palette-text-label">Texte libre</div>
+                </div>
+              </div>
+            )}
+          </DragOverlay>
+        </DndContext>
+
+        {/* Modal consentement */}
+        {showConsentement && (
+          <ConsentementModal
+            onConfirm={handleConsentementConfirm}
+            onRefuse={handleConsentementRefuse}
+          />
+        )}
+      </div>
+    </PPContext.Provider>
   );
 }
