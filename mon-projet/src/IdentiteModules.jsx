@@ -1,4 +1,10 @@
-import { useState } from "react";
+import { useState, useContext, useEffect, createContext } from "react";
+
+// ─── Contexte partagé PP ────────────────────────────────────────────────────
+export const PPContext = createContext({
+  objectifsData: [],
+  setObjectifsData: () => {},
+});
 
 // ─── État Civil ────────────────────────────────────────────────────────────────
 export function EtatCivilForm() {
@@ -574,10 +580,16 @@ function getCurseurLabel(val) {
 }
 
 export function ObjectifsForm() {
+  const { setObjectifsData } = useContext(PPContext);
   const [objectifs, setObjectifs] = useState([
     { id: Date.now(), titre: "", curseur: 50, moyens: [] },
   ]);
   const [showInfo, setShowInfo] = useState(false);
+
+  // Synchronise les titres des objectifs vers le contexte partagé
+  useEffect(() => {
+    setObjectifsData(objectifs.map((o) => ({ id: o.id, titre: o.titre })));
+  }, [objectifs, setObjectifsData]);
 
   const addObjectif = () =>
     setObjectifs((prev) => [
@@ -737,6 +749,200 @@ export function ObjectifsForm() {
   );
 }
 
+// ─── Réseau et partenaires ───────────────────────────────────────────────────
+export function ReseauForm() {
+  const { objectifsData } = useContext(PPContext);
+  const [partenaires, setPartenaires] = useState({});
+
+  const updatePartenaire = (objId, value) =>
+    setPartenaires((prev) => ({ ...prev, [objId]: value }));
+
+  return (
+    <div className="reseau-form">
+      <div className="reseau-form-titre">Réseau et partenaires</div>
+      {objectifsData.length === 0 ? (
+        <div className="reseau-empty">
+          Aucun objectif défini. Ajoutez d&apos;abord le module &quot;Objectifs et moyens&quot; et saisissez vos objectifs.
+        </div>
+      ) : (
+        <div className="reseau-table">
+          <div className="reseau-table-header">
+            <div className="reseau-col-objectif">Objectifs du PP</div>
+            <div className="reseau-col-partenaire">Partenaires mobilisés</div>
+          </div>
+          {objectifsData.map((obj, idx) => (
+            <div key={obj.id} className="reseau-table-row">
+              <div className="reseau-col-objectif">
+                {obj.titre ? obj.titre : <em className="reseau-sans-titre">Objectif {idx + 1} (sans titre)</em>}
+              </div>
+              <div className="reseau-col-partenaire">
+                <input
+                  type="text"
+                  className="reseau-partenaire-input"
+                  value={partenaires[obj.id] || ""}
+                  onChange={(e) => updatePartenaire(obj.id, e.target.value)}
+                  placeholder="Nom du ou des partenaires…"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Évaluation des objectifs du PP ─────────────────────────────────────────
+export function EvalObjectifsPPForm() {
+  const { objectifsData } = useContext(PPContext);
+  const [evaluations, setEvaluations] = useState({});
+
+  const update = (objId, field, value) =>
+    setEvaluations((prev) => ({
+      ...prev,
+      [objId]: { ...prev[objId], [field]: value },
+    }));
+
+  return (
+    <div className="eval-objectifs-form">
+      <div className="eval-objectifs-titre">Évaluation des objectifs du PP</div>
+      {objectifsData.length === 0 ? (
+        <div className="eval-empty">
+          Aucun objectif défini. Ajoutez d&apos;abord le module &quot;Objectifs et moyens&quot; et saisissez vos objectifs.
+        </div>
+      ) : (
+        <div className="eval-table">
+          <div className="eval-table-header">
+            <div className="eval-col-objectif">Objectif du PP</div>
+            <div className="eval-col-statut">Statut</div>
+            <div className="eval-col-evolution">Évolution souhaitée</div>
+          </div>
+          {objectifsData.map((obj, idx) => (
+            <div key={obj.id} className="eval-table-row">
+              <div className="eval-col-objectif">
+                {obj.titre ? obj.titre : <em className="eval-sans-titre">Objectif {idx + 1} (sans titre)</em>}
+              </div>
+              <div className="eval-col-statut">
+                <select
+                  className="eval-statut-select"
+                  value={evaluations[obj.id]?.statut || ""}
+                  onChange={(e) => update(obj.id, "statut", e.target.value)}
+                >
+                  <option value="">— Choisir —</option>
+                  <option value="atteint">Atteint</option>
+                  <option value="en_cours">En cours</option>
+                  <option value="non_atteint">Non atteint</option>
+                </select>
+              </div>
+              <div className="eval-col-evolution">
+                <textarea
+                  className="eval-evolution-textarea"
+                  value={evaluations[obj.id]?.evolution || ""}
+                  onChange={(e) => update(obj.id, "evolution", e.target.value)}
+                  placeholder="Évolution souhaitée…"
+                  rows={2}
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Évaluation de stage et accueil temporaire ───────────────────────────────
+export function EvalStageForm() {
+  const [stages, setStages] = useState([
+    { id: Date.now(), structure: "", commentaire: "", dateDebut: "", dateFin: "", evolution: "" },
+  ]);
+
+  const addStage = () =>
+    setStages((prev) => [
+      ...prev,
+      { id: Date.now(), structure: "", commentaire: "", dateDebut: "", dateFin: "", evolution: "" },
+    ]);
+
+  const removeStage = (stageId) =>
+    setStages((prev) => prev.filter((s) => s.id !== stageId));
+
+  const updateStage = (stageId, field, value) =>
+    setStages((prev) =>
+      prev.map((s) => (s.id === stageId ? { ...s, [field]: value } : s))
+    );
+
+  return (
+    <div className="eval-stage-form">
+      {stages.map((stage, idx) => (
+        <div key={stage.id} className="eval-stage-block">
+          <div className="eval-stage-block-header">
+            <span className="eval-stage-numero">Stage / Accueil temporaire {idx + 1}</span>
+            {stages.length > 1 && (
+              <button
+                className="remove-objectif-btn"
+                onClick={() => removeStage(stage.id)}
+                title="Supprimer ce stage"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <div className="identite-form">
+            <div className="form-group">
+              <label>Nom de la structure</label>
+              <input
+                type="text"
+                value={stage.structure}
+                onChange={(e) => updateStage(stage.id, "structure", e.target.value)}
+                placeholder="Nom de la structure d'accueil…"
+              />
+            </div>
+            <div className="form-group">
+              <label>Commentaire</label>
+              <textarea
+                value={stage.commentaire}
+                onChange={(e) => updateStage(stage.id, "commentaire", e.target.value)}
+                placeholder="Déroulement du stage, observations…"
+                rows={3}
+              />
+            </div>
+            <div className="form-row">
+              <div className="form-group">
+                <label>Date de début</label>
+                <input
+                  type="date"
+                  value={stage.dateDebut}
+                  onChange={(e) => updateStage(stage.id, "dateDebut", e.target.value)}
+                />
+              </div>
+              <div className="form-group">
+                <label>Date de fin</label>
+                <input
+                  type="date"
+                  value={stage.dateFin}
+                  onChange={(e) => updateStage(stage.id, "dateFin", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Évolution / Perspectives</label>
+              <textarea
+                value={stage.evolution}
+                onChange={(e) => updateStage(stage.id, "evolution", e.target.value)}
+                placeholder="Perspectives et évolutions futures…"
+                rows={3}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+      <button className="add-objectif-btn eval-stage-add-btn" onClick={addStage}>
+        + Ajouter un stage / accueil temporaire
+      </button>
+    </div>
+  );
+}
+
 // ─── Bloc analyse pluriprofessionnelle (générique, répétable) ───────────────
 export function PluriproBlockForm() {
   const [titre, setTitre] = useState("");
@@ -788,6 +994,11 @@ const FORM_MAP = {
   "analyse_equipe__loisirs": PluriproBlockForm,
   // Objectifs et moyens à mettre en œuvre
   "objectifs": ObjectifsForm,
+  // Réseau et partenaires
+  "reseau": ReseauForm,
+  // Bilans et évaluations
+  "bilan__eval_objectifs_pp": EvalObjectifsPPForm,
+  "bilan__eval_stage": EvalStageForm,
 };
 
 export function getIdentiteForm(moduleId) {
