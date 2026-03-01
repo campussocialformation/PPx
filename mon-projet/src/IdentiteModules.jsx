@@ -4,11 +4,25 @@ import { useState, useContext, useEffect, createContext } from "react";
 export const PPContext = createContext({
   objectifsData: [],
   setObjectifsData: () => {},
+  formsData: {},
+  setFormData: () => {},
 });
 
+function useFormSync(moduleId, defaultData) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [data, setData] = useState(() => {
+    const saved = formsData[moduleId];
+    return saved !== undefined ? saved : defaultData;
+  });
+  useEffect(() => {
+    if (moduleId) setFormData(moduleId, data);
+  }, [data]); // eslint-disable-line react-hooks/exhaustive-deps
+  return [data, setData];
+}
+
 // ─── État Civil ────────────────────────────────────────────────────────────────
-export function EtatCivilForm() {
-  const [data, setData] = useState({ nom: "", prenom: "", dateNaissance: "", age: "" });
+export function EtatCivilForm({ moduleId }) {
+  const [data, setData] = useFormSync(moduleId, { nom: "", prenom: "", dateNaissance: "", age: "" });
   const update = (field, value) => setData((prev) => ({ ...prev, [field]: value }));
 
   return (
@@ -57,8 +71,8 @@ export function EtatCivilForm() {
 }
 
 // ─── Situation Familiale ───────────────────────────────────────────────────────
-export function SituationFamilialeForm() {
-  const [data, setData] = useState({
+export function SituationFamilialeForm({ moduleId }) {
+  const [data, setData] = useFormSync(moduleId, {
     situationMaritale: "",
     nbEnfants: "",
     enfantsACharge: "",
@@ -137,8 +151,8 @@ export function SituationFamilialeForm() {
 }
 
 // ─── Scolarité / Formation / Diplôme ──────────────────────────────────────────
-export function ScolariteForm() {
-  const [data, setData] = useState({
+export function ScolariteForm({ moduleId }) {
+  const [data, setData] = useFormSync(moduleId, {
     niveau: "",
     diplome: "",
     formationCours: "",
@@ -195,8 +209,8 @@ export function ScolariteForm() {
 }
 
 // ─── Situation Professionnelle ─────────────────────────────────────────────────
-export function SituationProForm() {
-  const [data, setData] = useState({
+export function SituationProForm({ moduleId }) {
+  const [data, setData] = useFormSync(moduleId, {
     statut: "",
     typeContrat: "",
     employeur: "",
@@ -283,9 +297,11 @@ const ORIENTATIONS_ESMS = [
   { id: "internat", label: "Internat" },
 ];
 
-export function DroitsMDPHForm() {
-  const [droits, setDroits] = useState({});
-  const [orientations, setOrientations] = useState({});
+export function DroitsMDPHForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [droits, setDroits] = useState(() => formsData[moduleId]?.droits ?? {});
+  const [orientations, setOrientations] = useState(() => formsData[moduleId]?.orientations ?? {});
+  useEffect(() => { if (moduleId) setFormData(moduleId, { droits, orientations }); }, [droits, orientations]); // eslint-disable-line react-hooks/exhaustive-deps
   const toggleDroit = (id) => setDroits((prev) => ({ ...prev, [id]: !prev[id] }));
   const toggleOrientation = (id) => setOrientations((prev) => ({ ...prev, [id]: !prev[id] }));
 
@@ -332,10 +348,12 @@ const AIDES_LOGEMENT = [
   { id: "fsl", label: "FSL – Fonds de Solidarité pour le Logement" },
 ];
 
-export function DroitsLogementForm() {
-  const [typeLogement, setTypeLogement] = useState("");
-  const [statut, setStatut] = useState("");
-  const [aides, setAides] = useState({});
+export function DroitsLogementForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [typeLogement, setTypeLogement] = useState(() => formsData[moduleId]?.typeLogement ?? "");
+  const [statut, setStatut] = useState(() => formsData[moduleId]?.statut ?? "");
+  const [aides, setAides] = useState(() => formsData[moduleId]?.aides ?? {});
+  useEffect(() => { if (moduleId) setFormData(moduleId, { typeLogement, statut, aides }); }, [typeLogement, statut, aides]); // eslint-disable-line react-hooks/exhaustive-deps
   const toggleAide = (id) => setAides((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
@@ -394,8 +412,10 @@ const DROITS_EMPLOI = [
   { id: "contrat_aide", label: "Contrat Aidé (CAE, CUI…)" },
 ];
 
-export function DroitsEmploiForm() {
-  const [droits, setDroits] = useState({});
+export function DroitsEmploiForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [droits, setDroits] = useState(() => formsData[moduleId]?.droits ?? {});
+  useEffect(() => { if (moduleId) setFormData(moduleId, { droits }); }, [droits]); // eslint-disable-line react-hooks/exhaustive-deps
   const toggle = (id) => setDroits((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
@@ -430,8 +450,10 @@ const DROITS_DIVERS = [
   { id: "mvs", label: "MVS – Mesure de Protection Sociale" },
 ];
 
-export function DroitsDiversForm() {
-  const [droits, setDroits] = useState({});
+export function DroitsDiversForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [droits, setDroits] = useState(() => formsData[moduleId]?.droits ?? {});
+  useEffect(() => { if (moduleId) setFormData(moduleId, { droits }); }, [droits]); // eslint-disable-line react-hooks/exhaustive-deps
   const toggle = (id) => setDroits((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
@@ -454,8 +476,10 @@ export function DroitsDiversForm() {
 }
 
 // ─── Attentes de la personne ────────────────────────────────────────────────
-export function AttentesPersonneForm() {
-  const [texte, setTexte] = useState("");
+export function AttentesPersonneForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [texte, setTexte] = useState(() => formsData[moduleId]?.texte ?? "");
+  useEffect(() => { if (moduleId) setFormData(moduleId, { texte }); }, [texte]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="identite-form">
       <div className="form-group">
@@ -472,8 +496,10 @@ export function AttentesPersonneForm() {
 }
 
 // ─── Attentes des proches aidants ───────────────────────────────────────────
-export function AttentesProcheAidantsForm() {
-  const [texte, setTexte] = useState("");
+export function AttentesProcheAidantsForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [texte, setTexte] = useState(() => formsData[moduleId]?.texte ?? "");
+  useEffect(() => { if (moduleId) setFormData(moduleId, { texte }); }, [texte]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="identite-form">
       <div className="form-group">
@@ -490,8 +516,10 @@ export function AttentesProcheAidantsForm() {
 }
 
 // ─── Attentes du représentant légal ────────────────────────────────────────
-export function AttentesRepresentantLegalForm() {
-  const [texte, setTexte] = useState("");
+export function AttentesRepresentantLegalForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [texte, setTexte] = useState(() => formsData[moduleId]?.texte ?? "");
+  useEffect(() => { if (moduleId) setFormData(moduleId, { texte }); }, [texte]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="identite-form">
       <div className="form-group">
@@ -579,17 +607,18 @@ function getCurseurLabel(val) {
   return { texte: "Équilibre attentes / besoins équipe", couleur: "#718096" };
 }
 
-export function ObjectifsForm() {
-  const { setObjectifsData } = useContext(PPContext);
-  const [objectifs, setObjectifs] = useState([
-    { id: Date.now(), titre: "", curseur: 50, moyens: [] },
-  ]);
+export function ObjectifsForm({ moduleId }) {
+  const { setObjectifsData, formsData, setFormData } = useContext(PPContext);
+  const [objectifs, setObjectifs] = useState(() =>
+    formsData[moduleId]?.objectifs ?? [{ id: Date.now(), titre: "", curseur: 50, moyens: [] }]
+  );
   const [showInfo, setShowInfo] = useState(false);
 
-  // Synchronise les titres des objectifs vers le contexte partagé
+  // Synchronise les titres des objectifs vers le contexte partagé + formsData
   useEffect(() => {
     setObjectifsData(objectifs.map((o) => ({ id: o.id, titre: o.titre })));
-  }, [objectifs, setObjectifsData]);
+    if (moduleId) setFormData(moduleId, { objectifs });
+  }, [objectifs]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addObjectif = () =>
     setObjectifs((prev) => [
@@ -750,9 +779,10 @@ export function ObjectifsForm() {
 }
 
 // ─── Réseau et partenaires ───────────────────────────────────────────────────
-export function ReseauForm() {
-  const { objectifsData } = useContext(PPContext);
-  const [partenaires, setPartenaires] = useState({});
+export function ReseauForm({ moduleId }) {
+  const { objectifsData, formsData, setFormData } = useContext(PPContext);
+  const [partenaires, setPartenaires] = useState(() => formsData[moduleId]?.partenaires ?? {});
+  useEffect(() => { if (moduleId) setFormData(moduleId, { partenaires }); }, [partenaires]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updatePartenaire = (objId, value) =>
     setPartenaires((prev) => ({ ...prev, [objId]: value }));
@@ -793,9 +823,10 @@ export function ReseauForm() {
 }
 
 // ─── Évaluation des objectifs du PP ─────────────────────────────────────────
-export function EvalObjectifsPPForm() {
-  const { objectifsData } = useContext(PPContext);
-  const [evaluations, setEvaluations] = useState({});
+export function EvalObjectifsPPForm({ moduleId }) {
+  const { objectifsData, formsData, setFormData } = useContext(PPContext);
+  const [evaluations, setEvaluations] = useState(() => formsData[moduleId]?.evaluations ?? {});
+  useEffect(() => { if (moduleId) setFormData(moduleId, { evaluations }); }, [evaluations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const update = (objId, field, value) =>
     setEvaluations((prev) => ({
@@ -852,10 +883,12 @@ export function EvalObjectifsPPForm() {
 }
 
 // ─── Évaluation de stage et accueil temporaire ───────────────────────────────
-export function EvalStageForm() {
-  const [stages, setStages] = useState([
-    { id: Date.now(), structure: "", commentaire: "", dateDebut: "", dateFin: "", evolution: "" },
-  ]);
+export function EvalStageForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [stages, setStages] = useState(() =>
+    formsData[moduleId]?.stages ?? [{ id: Date.now(), structure: "", commentaire: "", dateDebut: "", dateFin: "", evolution: "" }]
+  );
+  useEffect(() => { if (moduleId) setFormData(moduleId, { stages }); }, [stages]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addStage = () =>
     setStages((prev) => [
@@ -944,9 +977,11 @@ export function EvalStageForm() {
 }
 
 // ─── Bloc analyse pluriprofessionnelle (générique, répétable) ───────────────
-export function PluriproBlockForm() {
-  const [titre, setTitre] = useState("");
-  const [detail, setDetail] = useState("");
+export function PluriproBlockForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [titre, setTitre] = useState(() => formsData[moduleId]?.titre ?? "");
+  const [detail, setDetail] = useState(() => formsData[moduleId]?.detail ?? "");
+  useEffect(() => { if (moduleId) setFormData(moduleId, { titre, detail }); }, [titre, detail]); // eslint-disable-line react-hooks/exhaustive-deps
   return (
     <div className="identite-form">
       <div className="form-group">
@@ -972,9 +1007,9 @@ export function PluriproBlockForm() {
 }
 
 // ─── Habitudes de vie : Alimentation ─────────────────────────────────────────
-export function HvAlimentationForm() {
+export function HvAlimentationForm({ moduleId }) {
   const [uid] = useState(() => Math.random().toString(36).slice(2));
-  const [data, setData] = useState({
+  const [data, setData] = useFormSync(moduleId, {
     petitDejCompo: "", gouterCompo: "", collationNuit: "",
     complementsAlimentaires: "", alimentsNonAimes: "",
     regimeSansSucre: false, regimeSansSel: false, regimeAutre: "",
@@ -1147,9 +1182,9 @@ export function HvAlimentationForm() {
 }
 
 // ─── Habitudes de vie : Sommeil et repos ──────────────────────────────────────
-export function HvSommeilForm() {
+export function HvSommeilForm({ moduleId }) {
   const [uid] = useState(() => Math.random().toString(36).slice(2));
-  const [data, setData] = useState({
+  const [data, setData] = useFormSync(moduleId, {
     heureLever: "", heureCoucher: "",
     sieste: "", siesteLieu: "", siesteDuree: "",
     regardeTvAvantCoucher: "", regardeTvLieu: "", regardeTvHabille: "",
@@ -1301,9 +1336,9 @@ export function HvSommeilForm() {
 }
 
 // ─── Habitudes de vie : Hygiène corporelle et esthétique ─────────────────────
-export function HvHygieneForm() {
+export function HvHygieneForm({ moduleId }) {
   const [uid] = useState(() => Math.random().toString(36).slice(2));
-  const [data, setData] = useState({
+  const [data, setData] = useFormSync(moduleId, {
     momentToiletteAvantPetitDej: false, momentToiletteApresPetitDej: false, momentToiletteSoir: false,
     toiletteAutonomie: "",
     douche: "", bains: "", toiletteLavabo: "", shampoing: "",
@@ -1540,9 +1575,9 @@ export function HvHygieneForm() {
 }
 
 // ─── Habitudes de vie : Élimination et transit ───────────────────────────────
-export function HvEliminationForm() {
+export function HvEliminationForm({ moduleId }) {
   const [uid] = useState(() => Math.random().toString(36).slice(2));
-  const [data, setData] = useState({
+  const [data, setData] = useFormSync(moduleId, {
     toilettesAutonomie: "",
     incontinenceUrinaire: "", incontinenceFecale: "",
     fuitesUrinaires: "",
@@ -1635,9 +1670,9 @@ export function HvEliminationForm() {
 }
 
 // ─── Habitudes de vie : Communication ────────────────────────────────────────
-export function HvCommunicationForm() {
+export function HvCommunicationForm({ moduleId }) {
   const [uid] = useState(() => Math.random().toString(36).slice(2));
-  const [data, setData] = useState({
+  const [data, setData] = useFormSync(moduleId, {
     langue: "", communication: "", surnom: "",
     sexprimVerbalement: "", saitLire: "", saitEcrire: "",
     comprehension: "",
@@ -1743,9 +1778,9 @@ export function HvCommunicationForm() {
 }
 
 // ─── Habitudes de vie : Mobilités et déplacements ────────────────────────────
-export function HvMobiliteForm() {
+export function HvMobiliteForm({ moduleId }) {
   const [uid] = useState(() => Math.random().toString(36).slice(2));
-  const [data, setData] = useState({
+  const [data, setData] = useFormSync(moduleId, {
     lateralite: "",
     deplacement: "",
     canneSimple: false, deuxCannesSimples: false,
@@ -1872,8 +1907,8 @@ export function HvMobiliteForm() {
 }
 
 // ─── Habitudes de vie : Vie sociale et culturelle ────────────────────────────
-export function HvSocialeForm() {
-  const [data, setData] = useState({
+export function HvSocialeForm({ moduleId }) {
+  const [data, setData] = useFormSync(moduleId, {
     activite: "",
     observations: "",
   });
@@ -1907,10 +1942,12 @@ export function HvSocialeForm() {
 }
 
 // ─── Bilans et évaluations : Autres évaluations et bilans ───────────────────
-export function AutresEvaluationsForm() {
-  const [evaluations, setEvaluations] = useState([
-    { id: Date.now(), type: "", date: "", intervenant: "", observations: "" },
-  ]);
+export function AutresEvaluationsForm({ moduleId }) {
+  const { formsData, setFormData } = useContext(PPContext);
+  const [evaluations, setEvaluations] = useState(() =>
+    formsData[moduleId]?.evaluations ?? [{ id: Date.now(), type: "", date: "", intervenant: "", observations: "" }]
+  );
+  useEffect(() => { if (moduleId) setFormData(moduleId, { evaluations }); }, [evaluations]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const addEval = () =>
     setEvaluations(prev => [
