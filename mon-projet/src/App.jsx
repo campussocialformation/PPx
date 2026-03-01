@@ -110,6 +110,7 @@ const POLES = {
         sousModules: [
           { id: "eval_objectifs_pp", label: "Évaluation des objectifs du PP" },
           { id: "eval_stage", label: "Évaluation de stage et accueil temporaire" },
+          { id: "autres_evaluations", label: "Autres évaluations et bilans" },
         ],
       },
     ],

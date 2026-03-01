@@ -971,6 +971,1025 @@ export function PluriproBlockForm() {
   );
 }
 
+// ─── Habitudes de vie : Alimentation ─────────────────────────────────────────
+export function HvAlimentationForm() {
+  const [uid] = useState(() => Math.random().toString(36).slice(2));
+  const [data, setData] = useState({
+    petitDejCompo: "", gouterCompo: "", collationNuit: "",
+    complementsAlimentaires: "", alimentsNonAimes: "",
+    regimeSansSucre: false, regimeSansSel: false, regimeAutre: "",
+    boissonNonAimee: "", texture: "", allergies: "", choixPersonnels: "",
+    troubleAppetit: "", troubleDeglutition: "", epaississant: "", eauGelifiee: "",
+    mangeSeul: "", aidePartielle: "", aideTotale: "",
+    mangeLentement: "", mangeRapidement: "", neResteTable: "", boitSeul: "", aStImuler: "",
+    boissonTableVin: false, boissonTableEau: false, boissonTableSirops: false,
+    boissonTableJus: false, boissonTableBiere: false, boissonTableAutres: "",
+    boissonHorsEau: false, boissonHorsSirop: false, boissonHorsTisane: false,
+    boissonHorsJus: false, boissonHorsBiere: false, boissonHorsCafe: false,
+    boissonHorsThe: false, boissonHorsAperitifs: false, boissonHorsAlcools: false,
+    remarques: "",
+  });
+  const upd = (f, v) => setData(p => ({ ...p, [f]: v }));
+  const tog = (f) => setData(p => ({ ...p, [f]: !p[f] }));
+
+  const OuiNon = ({ field, label }) => (
+    <div className="hv-oui-non-row">
+      <span className="hv-oui-non-label">{label}</span>
+      <div className="hv-oui-non-options">
+        {["oui", "non"].map(v => (
+          <label key={v} className="hv-radio-option">
+            <input type="radio" name={`${uid}-${field}`} value={v}
+              checked={data[field] === v} onChange={() => upd(field, v)} />
+            {v === "oui" ? "Oui" : "Non"}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="hv-form identite-form">
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Repas</div>
+        {[
+          ["petitDejCompo", "Petit déjeuner — composition"],
+          ["gouterCompo", "Goûter — composition"],
+          ["collationNuit", "Collation de nuit"],
+        ].map(([f, lbl]) => (
+          <div key={f} className="form-group">
+            <label>{lbl}</label>
+            <textarea value={data[f]} onChange={e => upd(f, e.target.value)} rows={2} placeholder={`${lbl}…`} />
+          </div>
+        ))}
+        <OuiNon field="complementsAlimentaires" label="Compléments alimentaires" />
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Préférences et restrictions</div>
+        <div className="form-group">
+          <label>Aliments non aimés</label>
+          <textarea value={data.alimentsNonAimes} onChange={e => upd("alimentsNonAimes", e.target.value)} rows={2} placeholder="Aliments non appréciés…" />
+        </div>
+        <div className="form-group">
+          <label>Régime alimentaire médicalement prescrit</label>
+          <div className="hv-checkbox-row">
+            {[["regimeSansSucre", "Sans sucre"], ["regimeSansSel", "Sans sel"]].map(([f, lbl]) => (
+              <label key={f} className="checkbox-item">
+                <input type="checkbox" checked={data[f]} onChange={() => tog(f)} />{lbl}
+              </label>
+            ))}
+          </div>
+          <div className="form-group hv-sub-field">
+            <label>Autre régime prescrit</label>
+            <input type="text" value={data.regimeAutre} onChange={e => upd("regimeAutre", e.target.value)} placeholder="Préciser…" />
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Boisson non aimée</label>
+          <input type="text" value={data.boissonNonAimee} onChange={e => upd("boissonNonAimee", e.target.value)} placeholder="Boisson(s) non appréciée(s)…" />
+        </div>
+        <div className="form-group">
+          <label>Texture des repas</label>
+          <select value={data.texture} onChange={e => upd("texture", e.target.value)}>
+            <option value="">— Choisir —</option>
+            <option value="normal">Normal</option>
+            <option value="hache">Haché</option>
+            <option value="mixe_lisse">Mixé lisse</option>
+            <option value="mousse">Mixé mousse</option>
+            <option value="autre">Autre</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Allergie ou intolérance alimentaire</label>
+          <textarea value={data.allergies} onChange={e => upd("allergies", e.target.value)} rows={2} placeholder="Allergies ou intolérances connues…" />
+        </div>
+        <div className="form-group">
+          <label>Choix personnels sans lien médical (sans viande, végé, vegan…)</label>
+          <textarea value={data.choixPersonnels} onChange={e => upd("choixPersonnels", e.target.value)} rows={2} placeholder="Choix alimentaires personnels…" />
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Troubles</div>
+        <OuiNon field="troubleAppetit" label="Trouble de l'appétit" />
+        <OuiNon field="troubleDeglutition" label="Trouble de la déglutition" />
+        {data.troubleDeglutition === "oui" && (
+          <div className="hv-indent">
+            <OuiNon field="epaississant" label="Usage d'épaississant" />
+            <OuiNon field="eauGelifiee" label="Usage d'eau gélifiée" />
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Comportement lors de la prise des repas</div>
+        <div className="hv-behavior-grid">
+          {[
+            ["mangeSeul", "Mange seul"], ["aidePartielle", "Aide partielle"], ["aideTotale", "Aide totale"],
+            ["mangeLentement", "Mange lentement"], ["mangeRapidement", "Mange rapidement"],
+            ["neResteTable", "Ne reste pas à table"], ["boitSeul", "Boit seul"], ["aStImuler", "À stimuler"],
+          ].map(([f, lbl]) => (
+            <div key={f} className="hv-behavior-item">
+              <span className="hv-behavior-label">{lbl}</span>
+              <div className="hv-oui-non-options">
+                {["oui", "non"].map(v => (
+                  <label key={v} className="hv-radio-option">
+                    <input type="radio" name={`${uid}-${f}`} value={v}
+                      checked={data[f] === v} onChange={() => upd(f, v)} />
+                    {v === "oui" ? "Oui" : "Non"}
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Boissons à table</div>
+        <div className="hv-checkbox-row hv-checkbox-wrap">
+          {[
+            ["boissonTableVin", "Vin"], ["boissonTableEau", "Eau"], ["boissonTableSirops", "Sirops"],
+            ["boissonTableJus", "Jus de fruits"], ["boissonTableBiere", "Bière"],
+          ].map(([f, lbl]) => (
+            <label key={f} className="checkbox-item">
+              <input type="checkbox" checked={data[f]} onChange={() => tog(f)} />{lbl}
+            </label>
+          ))}
+        </div>
+        <div className="form-group hv-sub-field">
+          <label>Autres boissons à table</label>
+          <input type="text" value={data.boissonTableAutres} onChange={e => upd("boissonTableAutres", e.target.value)} placeholder="Préciser…" />
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Boissons en dehors des repas</div>
+        <div className="hv-checkbox-row hv-checkbox-wrap">
+          {[
+            ["boissonHorsEau", "Eau"], ["boissonHorsSirop", "Sirop"], ["boissonHorsTisane", "Tisane"],
+            ["boissonHorsJus", "Jus de fruits"], ["boissonHorsBiere", "Bière"], ["boissonHorsCafe", "Café"],
+            ["boissonHorsThe", "Thé"], ["boissonHorsAperitifs", "Apéritifs"], ["boissonHorsAlcools", "Alcools"],
+          ].map(([f, lbl]) => (
+            <label key={f} className="checkbox-item">
+              <input type="checkbox" checked={data[f]} onChange={() => tog(f)} />{lbl}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Remarques particulières sur l&apos;alimentation</label>
+        <textarea value={data.remarques} onChange={e => upd("remarques", e.target.value)} rows={3} placeholder="Remarques particulières…" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Habitudes de vie : Sommeil et repos ──────────────────────────────────────
+export function HvSommeilForm() {
+  const [uid] = useState(() => Math.random().toString(36).slice(2));
+  const [data, setData] = useState({
+    heureLever: "", heureCoucher: "",
+    sieste: "", siesteLieu: "", siesteDuree: "",
+    regardeTvAvantCoucher: "", regardeTvLieu: "", regardeTvHabille: "",
+    positionCouche: "",
+    leveSeul: "", coucheSeul: "",
+    sommeilRegulier: "", leveNuit: "", leveNuitMotif: "",
+    litMedicalise: "", barrieresLit: "",
+    rituel: "", remarques: "",
+  });
+  const upd = (f, v) => setData(p => ({ ...p, [f]: v }));
+
+  const OuiNon = ({ field, label }) => (
+    <div className="hv-oui-non-row">
+      <span className="hv-oui-non-label">{label}</span>
+      <div className="hv-oui-non-options">
+        {["oui", "non"].map(v => (
+          <label key={v} className="hv-radio-option">
+            <input type="radio" name={`${uid}-${field}`} value={v}
+              checked={data[field] === v} onChange={() => upd(field, v)} />
+            {v === "oui" ? "Oui" : "Non"}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="hv-form identite-form">
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Horaires</div>
+        <div className="form-row">
+          <div className="form-group">
+            <label>Heure de lever</label>
+            <input type="time" value={data.heureLever} onChange={e => upd("heureLever", e.target.value)} />
+          </div>
+          <div className="form-group">
+            <label>Heure de coucher</label>
+            <input type="time" value={data.heureCoucher} onChange={e => upd("heureCoucher", e.target.value)} />
+          </div>
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Sieste</div>
+        <OuiNon field="sieste" label="Sieste" />
+        {data.sieste === "oui" && (
+          <div className="hv-indent">
+            <div className="form-group">
+              <label>Lieu de sieste</label>
+              <div className="hv-checkbox-row">
+                {["Lit", "Fauteuil"].map(v => (
+                  <label key={v} className="hv-radio-option">
+                    <input type="radio" name={`${uid}-siesteLieu`} value={v.toLowerCase()}
+                      checked={data.siesteLieu === v.toLowerCase()} onChange={() => upd("siesteLieu", v.toLowerCase())} />
+                    {v}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Durée de la sieste</label>
+              <input type="text" value={data.siesteDuree} onChange={e => upd("siesteDuree", e.target.value)} placeholder="Ex : 30 min, 1 heure…" />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Télévision avant coucher</div>
+        <OuiNon field="regardeTvAvantCoucher" label="Regarde la télévision avant de se coucher" />
+        {data.regardeTvAvantCoucher === "oui" && (
+          <div className="hv-indent">
+            <div className="form-group">
+              <label>Lieu</label>
+              <div className="hv-checkbox-row">
+                {[["lit", "Au lit"], ["fauteuil", "Au fauteuil"]].map(([v, lbl]) => (
+                  <label key={v} className="hv-radio-option">
+                    <input type="radio" name={`${uid}-regardeTvLieu`} value={v}
+                      checked={data.regardeTvLieu === v} onChange={() => upd("regardeTvLieu", v)} />
+                    {lbl}
+                  </label>
+                ))}
+              </div>
+            </div>
+            {data.regardeTvLieu === "fauteuil" && (
+              <div className="form-group">
+                <label>État</label>
+                <div className="hv-checkbox-row">
+                  {[["habille", "Habillé"], ["deshabille", "Déshabillé"]].map(([v, lbl]) => (
+                    <label key={v} className="hv-radio-option">
+                      <input type="radio" name={`${uid}-regardeTvHabille`} value={v}
+                        checked={data.regardeTvHabille === v} onChange={() => upd("regardeTvHabille", v)} />
+                      {lbl}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Position et autonomie</div>
+        <div className="form-group">
+          <label>Position de couchage habituelle</label>
+          <div className="hv-checkbox-row">
+            {[["dos", "Sur le dos"], ["cote_droit", "Côté droit"], ["cote_gauche", "Côté gauche"]].map(([v, lbl]) => (
+              <label key={v} className="hv-radio-option">
+                <input type="radio" name={`${uid}-positionCouche`} value={v}
+                  checked={data.positionCouche === v} onChange={() => upd("positionCouche", v)} />
+                {lbl}
+              </label>
+            ))}
+          </div>
+        </div>
+        <OuiNon field="leveSeul" label="Se lève seul" />
+        <OuiNon field="coucheSeul" label="Se couche seul" />
+        <OuiNon field="sommeilRegulier" label="Sommeil régulier" />
+        <OuiNon field="leveNuit" label="Se lève la nuit" />
+        {data.leveNuit === "oui" && (
+          <div className="form-group hv-sub-field">
+            <label>Motif du lever nocturne</label>
+            <input type="text" value={data.leveNuitMotif} onChange={e => upd("leveNuitMotif", e.target.value)} placeholder="Ex : WC, douleur, insomnie…" />
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Équipement du domicile</div>
+        <OuiNon field="litMedicalise" label="Lit médicalisé au domicile" />
+        <OuiNon field="barrieresLit" label="Barrières de lit au domicile" />
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Rituel avant le coucher</div>
+        <div className="form-group">
+          <label>Rituel de coucher (verre d&apos;eau, mouchoir, volets, veilleuse, porte…)</label>
+          <textarea value={data.rituel} onChange={e => upd("rituel", e.target.value)} rows={3} placeholder="Décrivez les habitudes de coucher…" />
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Remarques particulières sur le sommeil</label>
+        <textarea value={data.remarques} onChange={e => upd("remarques", e.target.value)} rows={3} placeholder="Remarques particulières…" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Habitudes de vie : Hygiène corporelle et esthétique ─────────────────────
+export function HvHygieneForm() {
+  const [uid] = useState(() => Math.random().toString(36).slice(2));
+  const [data, setData] = useState({
+    momentToiletteAvantPetitDej: false, momentToiletteApresPetitDej: false, momentToiletteSoir: false,
+    toiletteAutonomie: "",
+    douche: "", bains: "", toiletteLavabo: "", shampoing: "",
+    soinsManucure: false, soinsManucureRythme: "",
+    soinsCoiffeur: false, soinsCoiffeurFrequence: "",
+    soinsRasageSeul: "", soinsRasageType: "",
+    soinsMaquillage: false, soinsMaquillagePrecision: "",
+    soinsPedicurie: false,
+    habillageAutonomie: "", deshabillageAutonomie: "",
+    auditionTroubles: "", auditionOreilleD: false, auditionOreilleG: false,
+    auditionAppareil: "", auditionGereSeul: "",
+    visionTroubles: "", visionPrecision: "",
+    lunettes: "", lunettesJournee: "", lunettesLecture: "",
+    protheseDentaire: "", protheseDentaireFixe: false, protheseDentaireFixeNiveau: "",
+    protheseDentaireComplete: false, protheseDentaireCompleteHaut: false, protheseDentaireCompleteBas: false,
+    protheseDentaireGereSeul: "",
+    remarques: "",
+  });
+  const upd = (f, v) => setData(p => ({ ...p, [f]: v }));
+  const tog = (f) => setData(p => ({ ...p, [f]: !p[f] }));
+
+  const OuiNon = ({ field, label }) => (
+    <div className="hv-oui-non-row">
+      <span className="hv-oui-non-label">{label}</span>
+      <div className="hv-oui-non-options">
+        {["oui", "non"].map(v => (
+          <label key={v} className="hv-radio-option">
+            <input type="radio" name={`${uid}-${field}`} value={v}
+              checked={data[field] === v} onChange={() => upd(field, v)} />
+            {v === "oui" ? "Oui" : "Non"}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  const Autonomie = ({ field, label }) => (
+    <div className="form-group">
+      <label>{label}</label>
+      <div className="hv-checkbox-row">
+        {[["seul", "Seul"], ["aide_partielle", "Avec aide partielle"], ["aide_totale", "Avec aide totale"]].map(([v, lbl]) => (
+          <label key={v} className="hv-radio-option">
+            <input type="radio" name={`${uid}-${field}`} value={v}
+              checked={data[field] === v} onChange={() => upd(field, v)} />
+            {lbl}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="hv-form identite-form">
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Moment de toilette</div>
+        <div className="hv-checkbox-row">
+          {[
+            ["momentToiletteAvantPetitDej", "Avant le petit déjeuner"],
+            ["momentToiletteApresPetitDej", "Après le petit déjeuner"],
+            ["momentToiletteSoir", "Le soir avant de se déshabiller / coucher"],
+          ].map(([f, lbl]) => (
+            <label key={f} className="checkbox-item">
+              <input type="checkbox" checked={data[f]} onChange={() => tog(f)} />{lbl}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Toilette</div>
+        <Autonomie field="toiletteAutonomie" label="Toilette" />
+        <OuiNon field="douche" label="Douche" />
+        <OuiNon field="bains" label="Bains" />
+        <OuiNon field="toiletteLavabo" label="Toilette au lavabo" />
+        <OuiNon field="shampoing" label="Shampoing" />
+        <OuiNon field="soinsPedicurie" label="Soins de pédicurie" />
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Rasage</div>
+        <OuiNon field="soinsRasageSeul" label="Rasage seul" />
+        {data.soinsRasageSeul === "oui" && (
+          <div className="hv-indent">
+            <div className="form-group">
+              <label>Type de rasoir</label>
+              <div className="hv-checkbox-row">
+                {[["electrique", "Rasoir électrique"], ["manuel", "Rasoir manuel"]].map(([v, lbl]) => (
+                  <label key={v} className="hv-radio-option">
+                    <input type="radio" name={`${uid}-soinsRasageType`} value={v}
+                      checked={data.soinsRasageType === v} onChange={() => upd("soinsRasageType", v)} />
+                    {lbl}
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Soins esthétiques</div>
+        <div className="hv-oui-non-row">
+          <span className="hv-oui-non-label">Maquillage</span>
+          <label className="checkbox-item">
+            <input type="checkbox" checked={data.soinsMaquillage} onChange={() => tog("soinsMaquillage")} />Oui
+          </label>
+        </div>
+        {data.soinsMaquillage && (
+          <div className="form-group hv-sub-field">
+            <label>Lequel / lesquels</label>
+            <input type="text" value={data.soinsMaquillagePrecision} onChange={e => upd("soinsMaquillagePrecision", e.target.value)} placeholder="Ex : fond de teint, rouge à lèvres…" />
+          </div>
+        )}
+        <div className="hv-oui-non-row">
+          <span className="hv-oui-non-label">Manucure</span>
+          <label className="checkbox-item">
+            <input type="checkbox" checked={data.soinsManucure} onChange={() => tog("soinsManucure")} />Oui
+          </label>
+        </div>
+        {data.soinsManucure && (
+          <div className="form-group hv-sub-field">
+            <label>À quel rythme</label>
+            <input type="text" value={data.soinsManucureRythme} onChange={e => upd("soinsManucureRythme", e.target.value)} placeholder="Ex : hebdomadaire, mensuel…" />
+          </div>
+        )}
+        <div className="hv-oui-non-row">
+          <span className="hv-oui-non-label">Coiffeur</span>
+          <label className="checkbox-item">
+            <input type="checkbox" checked={data.soinsCoiffeur} onChange={() => tog("soinsCoiffeur")} />Oui
+          </label>
+        </div>
+        {data.soinsCoiffeur && (
+          <div className="form-group hv-sub-field">
+            <label>À quelle fréquence</label>
+            <input type="text" value={data.soinsCoiffeurFrequence} onChange={e => upd("soinsCoiffeurFrequence", e.target.value)} placeholder="Ex : mensuel, tous les 2 mois…" />
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Habillage et déshabillage</div>
+        <Autonomie field="habillageAutonomie" label="Habillage" />
+        <Autonomie field="deshabillageAutonomie" label="Déshabillage" />
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Appareillages auditifs</div>
+        <OuiNon field="auditionTroubles" label="Troubles de l'audition" />
+        {data.auditionTroubles === "oui" && (
+          <div className="hv-indent">
+            <div className="form-group">
+              <label>Oreille(s) concernée(s)</label>
+              <div className="hv-checkbox-row">
+                {[["auditionOreilleD", "Oreille droite"], ["auditionOreilleG", "Oreille gauche"]].map(([f, lbl]) => (
+                  <label key={f} className="checkbox-item">
+                    <input type="checkbox" checked={data[f]} onChange={() => tog(f)} />{lbl}
+                  </label>
+                ))}
+              </div>
+            </div>
+            <OuiNon field="auditionAppareil" label="Port d'un appareil auditif" />
+            {data.auditionAppareil === "oui" && (
+              <OuiNon field="auditionGereSeul" label="Gère seul son appareil auditif" />
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Appareillages visuels</div>
+        <OuiNon field="visionTroubles" label="Troubles de la vision" />
+        {data.visionTroubles === "oui" && (
+          <div className="hv-indent">
+            <div className="form-group">
+              <label>Préciser les troubles</label>
+              <input type="text" value={data.visionPrecision} onChange={e => upd("visionPrecision", e.target.value)} placeholder="Ex : myopie, cataracte, DMLA…" />
+            </div>
+            <OuiNon field="lunettes" label="Port de lunettes" />
+            {data.lunettes === "oui" && (
+              <div className="hv-indent">
+                <OuiNon field="lunettesJournee" label="Toute la journée" />
+                <OuiNon field="lunettesLecture" label="Pour lire uniquement" />
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Prothèses dentaires</div>
+        <OuiNon field="protheseDentaire" label="Port de prothèses dentaires" />
+        {data.protheseDentaire === "oui" && (
+          <div className="hv-indent">
+            <div className="hv-oui-non-row">
+              <span className="hv-oui-non-label">Appareil fixe</span>
+              <label className="checkbox-item">
+                <input type="checkbox" checked={data.protheseDentaireFixe} onChange={() => tog("protheseDentaireFixe")} />Oui
+              </label>
+            </div>
+            {data.protheseDentaireFixe && (
+              <div className="form-group hv-sub-field">
+                <label>Niveau / localisation</label>
+                <input type="text" value={data.protheseDentaireFixeNiveau} onChange={e => upd("protheseDentaireFixeNiveau", e.target.value)} placeholder="Ex : molaires, incisives…" />
+              </div>
+            )}
+            <div className="hv-oui-non-row">
+              <span className="hv-oui-non-label">Appareil complet</span>
+              <label className="checkbox-item">
+                <input type="checkbox" checked={data.protheseDentaireComplete} onChange={() => tog("protheseDentaireComplete")} />Oui
+              </label>
+            </div>
+            {data.protheseDentaireComplete && (
+              <div className="hv-indent">
+                <div className="hv-checkbox-row">
+                  {[["protheseDentaireCompleteHaut", "Haut"], ["protheseDentaireCompleteBas", "Bas"]].map(([f, lbl]) => (
+                    <label key={f} className="checkbox-item">
+                      <input type="checkbox" checked={data[f]} onChange={() => tog(f)} />{lbl}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            )}
+            <OuiNon field="protheseDentaireGereSeul" label="Gère seul ses appareils dentaires" />
+          </div>
+        )}
+      </div>
+
+      <div className="form-group">
+        <label>Remarques particulières sur l&apos;hygiène</label>
+        <textarea value={data.remarques} onChange={e => upd("remarques", e.target.value)} rows={3} placeholder="Remarques particulières…" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Habitudes de vie : Élimination et transit ───────────────────────────────
+export function HvEliminationForm() {
+  const [uid] = useState(() => Math.random().toString(36).slice(2));
+  const [data, setData] = useState({
+    toilettesAutonomie: "",
+    incontinenceUrinaire: "", incontinenceFecale: "",
+    fuitesUrinaires: "",
+    protectionJour: "", protectionJourType: "", protectionJourTaille: "",
+    protectionNuit: "", protectionNuitType: "", protectionNuitTaille: "",
+    remarques: "",
+  });
+  const upd = (f, v) => setData(p => ({ ...p, [f]: v }));
+
+  const OuiNon = ({ field, label }) => (
+    <div className="hv-oui-non-row">
+      <span className="hv-oui-non-label">{label}</span>
+      <div className="hv-oui-non-options">
+        {["oui", "non"].map(v => (
+          <label key={v} className="hv-radio-option">
+            <input type="radio" name={`${uid}-${field}`} value={v}
+              checked={data[field] === v} onChange={() => upd(field, v)} />
+            {v === "oui" ? "Oui" : "Non"}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  const ProtectionDetails = ({ prefix, label }) => (
+    <div className="hv-indent">
+      <div className="form-row">
+        <div className="form-group">
+          <label>Type de protection</label>
+          <select value={data[`${prefix}Type`]} onChange={e => upd(`${prefix}Type`, e.target.value)}>
+            <option value="">— Choisir —</option>
+            <option value="change_complet">Change complet</option>
+            <option value="pants">Pants</option>
+            <option value="anamini">Anamini</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Taille</label>
+          <select value={data[`${prefix}Taille`]} onChange={e => upd(`${prefix}Taille`, e.target.value)}>
+            <option value="">— Taille —</option>
+            <option value="S">S</option>
+            <option value="M">M</option>
+            <option value="L">L</option>
+            <option value="XL">XL</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="hv-form identite-form">
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Élimination et transit</div>
+        <div className="form-group">
+          <label>Aller aux toilettes</label>
+          <div className="hv-checkbox-row">
+            {[["seul", "Seul"], ["avec_aide", "Avec aide"]].map(([v, lbl]) => (
+              <label key={v} className="hv-radio-option">
+                <input type="radio" name={`${uid}-toilettesAutonomie`} value={v}
+                  checked={data.toilettesAutonomie === v} onChange={() => upd("toilettesAutonomie", v)} />
+                {lbl}
+              </label>
+            ))}
+          </div>
+        </div>
+        <OuiNon field="incontinenceUrinaire" label="Incontinence urinaire" />
+        <OuiNon field="incontinenceFecale" label="Incontinence fécale" />
+        <OuiNon field="fuitesUrinaires" label="Fuites urinaires légères à l'effort" />
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Protections</div>
+        <OuiNon field="protectionJour" label="Protection de jour" />
+        {data.protectionJour === "oui" && (
+          <ProtectionDetails prefix="protectionJour" label="Protection de jour" />
+        )}
+        <OuiNon field="protectionNuit" label="Protection de nuit" />
+        {data.protectionNuit === "oui" && (
+          <ProtectionDetails prefix="protectionNuit" label="Protection de nuit" />
+        )}
+      </div>
+
+      <div className="form-group">
+        <label>Remarques particulières sur l&apos;élimination</label>
+        <textarea value={data.remarques} onChange={e => upd("remarques", e.target.value)} rows={3} placeholder="Remarques particulières…" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Habitudes de vie : Communication ────────────────────────────────────────
+export function HvCommunicationForm() {
+  const [uid] = useState(() => Math.random().toString(36).slice(2));
+  const [data, setData] = useState({
+    langue: "", communication: "", surnom: "",
+    sexprimVerbalement: "", saitLire: "", saitEcrire: "",
+    comprehension: "",
+    commentCommunique: "",
+    supportsAuxiliaires: "", supportsDetail: "",
+    demandeAttention: "", exprimeRefus: "",
+    accepteToucher: "", besoinToucher: "",
+    remarques: "",
+  });
+  const upd = (f, v) => setData(p => ({ ...p, [f]: v }));
+
+  const OuiNon = ({ field, label }) => (
+    <div className="hv-oui-non-row">
+      <span className="hv-oui-non-label">{label}</span>
+      <div className="hv-oui-non-options">
+        {["oui", "non"].map(v => (
+          <label key={v} className="hv-radio-option">
+            <input type="radio" name={`${uid}-${field}`} value={v}
+              checked={data[field] === v} onChange={() => upd(field, v)} />
+            {v === "oui" ? "Oui" : "Non"}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="hv-form identite-form">
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Langue et expression</div>
+        <div className="form-group">
+          <label>Langue de référence</label>
+          <input type="text" value={data.langue} onChange={e => upd("langue", e.target.value)} placeholder="Ex : Français, Anglais, LSF…" />
+        </div>
+        <div className="form-group">
+          <label>Préférence / habitude de communication</label>
+          <div className="hv-checkbox-row">
+            {[["tutoiement", "Tutoiement"], ["vouvoiement", "Vouvoiement"]].map(([v, lbl]) => (
+              <label key={v} className="hv-radio-option">
+                <input type="radio" name={`${uid}-communication`} value={v}
+                  checked={data.communication === v} onChange={() => upd("communication", v)} />
+                {lbl}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Surnom / prénom usuel</label>
+          <input type="text" value={data.surnom} onChange={e => upd("surnom", e.target.value)} placeholder="Ex : Mamie, Tonton, Lili…" />
+        </div>
+        <OuiNon field="sexprimVerbalement" label="Sait s'exprimer verbalement" />
+        <OuiNon field="saitLire" label="Sait lire" />
+        <OuiNon field="saitEcrire" label="Sait écrire" />
+        <div className="form-group">
+          <label>Compréhension de phrases et consignes simples</label>
+          <div className="hv-checkbox-row">
+            {[["totale", "Totale"], ["partielle", "Partielle"]].map(([v, lbl]) => (
+              <label key={v} className="hv-radio-option">
+                <input type="radio" name={`${uid}-comprehension`} value={v}
+                  checked={data.comprehension === v} onChange={() => upd("comprehension", v)} />
+                {lbl}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Modes de communication</div>
+        <div className="form-group">
+          <label>Comment communique-t-il / elle ? (répond à des questions fermées, par oui/non…)</label>
+          <textarea value={data.commentCommunique} onChange={e => upd("commentCommunique", e.target.value)} rows={3} placeholder="Décrivez le mode de communication habituel…" />
+        </div>
+        <OuiNon field="supportsAuxiliaires" label="Utilise des supports / moyens auxiliaires pour communiquer" />
+        {data.supportsAuxiliaires === "oui" && (
+          <div className="form-group hv-sub-field">
+            <label>Détails des supports utilisés</label>
+            <textarea value={data.supportsDetail} onChange={e => upd("supportsDetail", e.target.value)} rows={2} placeholder="Ex : pictogrammes, tablette, signes, PECS…" />
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Comportement relationnel</div>
+        <div className="form-group">
+          <label>Comment demande-t-il / elle de l&apos;attention ou de l&apos;aide ?</label>
+          <textarea value={data.demandeAttention} onChange={e => upd("demandeAttention", e.target.value)} rows={2} placeholder="Ex : appelle, touche le bras, sonne…" />
+        </div>
+        <div className="form-group">
+          <label>Comment exprime-t-il / elle son refus ?</label>
+          <textarea value={data.exprimeRefus} onChange={e => upd("exprimeRefus", e.target.value)} rows={2} placeholder="Ex : dit non, se détourne, crie…" />
+        </div>
+        <OuiNon field="accepteToucher" label="Accepte facilement d'être touché(e)" />
+        <OuiNon field="besoinToucher" label="A l'habitude ou le besoin de toucher (dans le contact avec l'autre)" />
+      </div>
+
+      <div className="form-group">
+        <label>Remarques particulières sur la communication</label>
+        <textarea value={data.remarques} onChange={e => upd("remarques", e.target.value)} rows={3} placeholder="Remarques particulières…" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Habitudes de vie : Mobilités et déplacements ────────────────────────────
+export function HvMobiliteForm() {
+  const [uid] = useState(() => Math.random().toString(36).slice(2));
+  const [data, setData] = useState({
+    lateralite: "",
+    deplacement: "",
+    canneSimple: false, deuxCannesSimples: false,
+    canneAnglaise: false, deuxCannesAnglaises: false,
+    deambulateur: false, canneTripode: false,
+    fauteuilRoulant: false, fauteuilElectrique: false,
+    deplacementAutres: "",
+    leverCoucher: "",
+    chutes: "", nombreChutes6Mois: "",
+    conduiteVoiture: "", conduiteMobylette: "", conduiteVelo: "",
+    remarques: "",
+  });
+  const upd = (f, v) => setData(p => ({ ...p, [f]: v }));
+  const tog = (f) => setData(p => ({ ...p, [f]: !p[f] }));
+
+  const OuiNon = ({ field, label }) => (
+    <div className="hv-oui-non-row">
+      <span className="hv-oui-non-label">{label}</span>
+      <div className="hv-oui-non-options">
+        {["oui", "non"].map(v => (
+          <label key={v} className="hv-radio-option">
+            <input type="radio" name={`${uid}-${field}`} value={v}
+              checked={data[field] === v} onChange={() => upd(field, v)} />
+            {v === "oui" ? "Oui" : "Non"}
+          </label>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div className="hv-form identite-form">
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Latéralité</div>
+        <div className="hv-checkbox-row">
+          {[["droitier", "Droitier"], ["gaucher", "Gaucher"]].map(([v, lbl]) => (
+            <label key={v} className="hv-radio-option">
+              <input type="radio" name={`${uid}-lateralite`} value={v}
+                checked={data.lateralite === v} onChange={() => upd("lateralite", v)} />
+              {lbl}
+            </label>
+          ))}
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Déplacement</div>
+        <div className="form-group">
+          <label>Autonomie de déplacement</label>
+          <div className="hv-checkbox-row hv-checkbox-wrap">
+            {[
+              ["seul", "Seul"], ["aide_partielle", "Avec aide partielle"],
+              ["aide_totale", "Avec aide totale"], ["alite", "Alité en permanence"],
+            ].map(([v, lbl]) => (
+              <label key={v} className="hv-radio-option">
+                <input type="radio" name={`${uid}-deplacement`} value={v}
+                  checked={data.deplacement === v} onChange={() => upd("deplacement", v)} />
+                {lbl}
+              </label>
+            ))}
+          </div>
+        </div>
+        <div className="form-group">
+          <label>Aide(s) technique(s) à la marche</label>
+          <div className="hv-checkbox-row hv-checkbox-wrap">
+            {[
+              ["canneSimple", "Canne simple"], ["deuxCannesSimples", "Deux cannes simples"],
+              ["canneAnglaise", "Canne anglaise"], ["deuxCannesAnglaises", "Deux cannes anglaises"],
+              ["deambulateur", "Déambulateur"], ["canneTripode", "Canne tripode"],
+              ["fauteuilRoulant", "Fauteuil roulant"], ["fauteuilElectrique", "Fauteuil électrique"],
+            ].map(([f, lbl]) => (
+              <label key={f} className="checkbox-item">
+                <input type="checkbox" checked={data[f]} onChange={() => tog(f)} />{lbl}
+              </label>
+            ))}
+          </div>
+          <div className="form-group hv-sub-field">
+            <label>Autres aides techniques</label>
+            <input type="text" value={data.deplacementAutres} onChange={e => upd("deplacementAutres", e.target.value)} placeholder="Préciser…" />
+          </div>
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Lever / coucher</div>
+        <div className="form-group">
+          <label>Se lever / se coucher</label>
+          <div className="hv-checkbox-row">
+            {[["seul", "Seul"], ["aide_partielle", "Avec aide partielle"], ["aide_totale", "Avec aide totale"]].map(([v, lbl]) => (
+              <label key={v} className="hv-radio-option">
+                <input type="radio" name={`${uid}-leverCoucher`} value={v}
+                  checked={data.leverCoucher === v} onChange={() => upd("leverCoucher", v)} />
+                {lbl}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Chutes</div>
+        <OuiNon field="chutes" label="A déjà fait des chutes" />
+        {data.chutes === "oui" && (
+          <div className="form-group hv-sub-field">
+            <label>Nombre de chutes durant les 6 derniers mois</label>
+            <input type="number" min="0" value={data.nombreChutes6Mois} onChange={e => upd("nombreChutes6Mois", e.target.value)} placeholder="0" />
+          </div>
+        )}
+      </div>
+
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Conduite</div>
+        <OuiNon field="conduiteVoiture" label="Conduit une voiture" />
+        <OuiNon field="conduiteMobylette" label="Conduit une mobylette" />
+        <OuiNon field="conduiteVelo" label="Conduit un vélo" />
+      </div>
+
+      <div className="form-group">
+        <label>Observations particulières sur la mobilité</label>
+        <textarea value={data.remarques} onChange={e => upd("remarques", e.target.value)} rows={3} placeholder="Observations particulières…" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Habitudes de vie : Vie sociale et culturelle ────────────────────────────
+export function HvSocialeForm() {
+  const [data, setData] = useState({
+    activite: "",
+    observations: "",
+  });
+  const upd = (f, v) => setData(p => ({ ...p, [f]: v }));
+  const [uid] = useState(() => Math.random().toString(36).slice(2));
+
+  return (
+    <div className="hv-form identite-form">
+      <div className="hv-subsection">
+        <div className="hv-subsection-title">Activité</div>
+        <div className="hv-oui-non-row">
+          <span className="hv-oui-non-label">Activité(s) sociale(s) et culturelle(s)</span>
+          <div className="hv-oui-non-options">
+            {["oui", "non"].map(v => (
+              <label key={v} className="hv-radio-option">
+                <input type="radio" name={`${uid}-activite`} value={v}
+                  checked={data.activite === v} onChange={() => upd("activite", v)} />
+                {v === "oui" ? "Oui" : "Non"}
+              </label>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="form-group">
+        <label>Observations particulières sur la vie sociale et culturelle</label>
+        <textarea value={data.observations} onChange={e => upd("observations", e.target.value)} rows={6} placeholder="Décrivez les activités, habitudes sociales, loisirs, relations…" />
+      </div>
+    </div>
+  );
+}
+
+// ─── Bilans et évaluations : Autres évaluations et bilans ───────────────────
+export function AutresEvaluationsForm() {
+  const [evaluations, setEvaluations] = useState([
+    { id: Date.now(), type: "", date: "", intervenant: "", observations: "" },
+  ]);
+
+  const addEval = () =>
+    setEvaluations(prev => [
+      ...prev,
+      { id: Date.now(), type: "", date: "", intervenant: "", observations: "" },
+    ]);
+
+  const removeEval = (id) =>
+    setEvaluations(prev => prev.filter(e => e.id !== id));
+
+  const updateEval = (id, field, value) =>
+    setEvaluations(prev =>
+      prev.map(e => (e.id === id ? { ...e, [field]: value } : e))
+    );
+
+  return (
+    <div className="autres-eval-form">
+      {evaluations.map((ev, idx) => (
+        <div key={ev.id} className="autres-eval-block">
+          <div className="autres-eval-block-header">
+            <span className="autres-eval-numero">Évaluation / Bilan {idx + 1}</span>
+            {evaluations.length > 1 && (
+              <button
+                className="remove-objectif-btn"
+                onClick={() => removeEval(ev.id)}
+                title="Supprimer cette évaluation"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+          <div className="identite-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Type d&apos;évaluation / bilan</label>
+                <input
+                  type="text"
+                  value={ev.type}
+                  onChange={e => updateEval(ev.id, "type", e.target.value)}
+                  placeholder="Ex : bilan neuropsychologique, MMS, GIR…"
+                />
+              </div>
+              <div className="form-group">
+                <label>Date</label>
+                <input
+                  type="date"
+                  value={ev.date}
+                  onChange={e => updateEval(ev.id, "date", e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="form-group">
+              <label>Intervenant(s)</label>
+              <input
+                type="text"
+                value={ev.intervenant}
+                onChange={e => updateEval(ev.id, "intervenant", e.target.value)}
+                placeholder="Ex : psychologue, médecin, ergothérapeute…"
+              />
+            </div>
+            <div className="form-group">
+              <label>Résultats et observations</label>
+              <textarea
+                value={ev.observations}
+                onChange={e => updateEval(ev.id, "observations", e.target.value)}
+                placeholder="Résultats, scores, conclusions, recommandations…"
+                rows={4}
+              />
+            </div>
+          </div>
+        </div>
+      ))}
+      <button className="add-objectif-btn autres-eval-add-btn" onClick={addEval}>
+        + Ajouter une évaluation / bilan
+      </button>
+    </div>
+  );
+}
+
 // ─── Helper : retourne le composant formulaire selon l'id du module ────────────
 const FORM_MAP = {
   "identite__etat_civil": EtatCivilForm,
@@ -999,6 +2018,15 @@ const FORM_MAP = {
   // Bilans et évaluations
   "bilan__eval_objectifs_pp": EvalObjectifsPPForm,
   "bilan__eval_stage": EvalStageForm,
+  "bilan__autres_evaluations": AutresEvaluationsForm,
+  // Habitudes de vie
+  "habitudes_vie__hv_alimentation": HvAlimentationForm,
+  "habitudes_vie__hv_sommeil": HvSommeilForm,
+  "habitudes_vie__hv_hygiene": HvHygieneForm,
+  "habitudes_vie__hv_elimination": HvEliminationForm,
+  "habitudes_vie__hv_communication": HvCommunicationForm,
+  "habitudes_vie__hv_mobilite": HvMobiliteForm,
+  "habitudes_vie__hv_sociale": HvSocialeForm,
 };
 
 export function getIdentiteForm(moduleId) {

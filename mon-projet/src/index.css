@@ -1306,3 +1306,186 @@ body {
   background: #fff5f5 !important;
   border-color: #c53030 !important;
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODULE : Habitudes de vie — styles communs
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.hv-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.hv-subsection {
+  background: #fffaf5;
+  border: 1px solid #fed7aa;
+  border-left: 3px solid #c05621;
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hv-subsection-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #c05621;
+  margin-bottom: 4px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #fed7aa;
+}
+
+/* Ligne Oui / Non */
+.hv-oui-non-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 5px 0;
+  border-bottom: 1px solid #feebc8;
+}
+
+.hv-oui-non-row:last-child {
+  border-bottom: none;
+}
+
+.hv-oui-non-label {
+  font-size: 0.85rem;
+  color: #4a5568;
+  flex: 1;
+  line-height: 1.3;
+}
+
+.hv-oui-non-options {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.hv-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.82rem;
+  color: #4a5568;
+  cursor: pointer;
+  padding: 3px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: white;
+  transition: background 0.12s, border-color 0.12s;
+  white-space: nowrap;
+}
+
+.hv-radio-option:hover {
+  background: #fff3e0;
+  border-color: #c05621;
+}
+
+.hv-radio-option input[type="radio"] {
+  accent-color: #c05621;
+  cursor: pointer;
+}
+
+/* Rangées de cases à cocher */
+.hv-checkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  margin: 4px 0;
+}
+
+.hv-checkbox-wrap {
+  flex-wrap: wrap;
+}
+
+/* Grille comportement repas */
+.hv-behavior-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px;
+}
+
+.hv-behavior-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  gap: 6px;
+}
+
+.hv-behavior-label {
+  font-size: 0.82rem;
+  color: #4a5568;
+  flex: 1;
+}
+
+/* Indentation pour les sous-options */
+.hv-indent {
+  margin-left: 16px;
+  padding-left: 12px;
+  border-left: 2px solid #fed7aa;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Champ subordonné */
+.hv-sub-field {
+  margin-top: 6px !important;
+  margin-left: 16px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   MODULE : Bilans et évaluations — Autres évaluations et bilans
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.autres-eval-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.autres-eval-block {
+  background: white;
+  border: 1px solid #fed7d7;
+  border-left: 4px solid #c53030;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.autres-eval-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2px;
+}
+
+.autres-eval-numero {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: #c53030;
+}
+
+.autres-eval-add-btn {
+  border-color: #feb2b2 !important;
+  color: #c53030 !important;
+}
+
+.autres-eval-add-btn:hover {
+  background: #fff5f5 !important;
+  border-color: #c53030 !important;
+}
