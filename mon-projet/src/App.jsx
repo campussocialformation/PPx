@@ -3,6 +3,8 @@ import {
   DndContext,
   closestCenter,
   PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   DragOverlay,
@@ -321,7 +323,10 @@ export default function App() {
   const [activeDragGroupe, setActiveDragGroupe] = useState(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 8 } }),
+  );
 
   // setFormData pour les formulaires
   const setFormData = useCallback((moduleId, data) => {
