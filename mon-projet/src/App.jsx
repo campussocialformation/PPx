@@ -74,6 +74,7 @@ const POLES = {
           { id: "social", label: "Social", repeatable: true },
           { id: "educatif", label: "Éducatif", repeatable: true },
           { id: "loisirs", label: "Loisirs", repeatable: true },
+          { id: "orientation_pro", label: "Orientation pro.", repeatable: true },
         ],
       },
       {
