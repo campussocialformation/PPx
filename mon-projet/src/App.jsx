@@ -319,6 +319,7 @@ export default function App() {
   const [modulePendant, setModulePendant] = useState(null);
   const [activeDragId, setActiveDragId] = useState(null);
   const [activeDragGroupe, setActiveDragGroupe] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
@@ -421,10 +422,13 @@ export default function App() {
   const modules = POLES[poleActif].modules;
 
   // Ajouter module
+  const closeSidebarOnMobile = () => { if (window.innerWidth <= 768) setSidebarOpen(false); };
+
   const ajouterModule = (module) => {
     if (module.consentement) { setModulePendant(module); setShowConsentement(true); return; }
     if (!composition.find((m) => m.id === module.id)) {
       setComposition([...composition, { id: module.id, label: module.label, groupe: module.groupe }]);
+      closeSidebarOnMobile();
     }
   };
 
@@ -439,6 +443,7 @@ export default function App() {
         setComposition([...composition, { id: compositeId, label: sub.label, groupe }]);
       }
     }
+    closeSidebarOnMobile();
   };
 
   const supprimerModule = (id) => setComposition(composition.filter((m) => m.id !== id));
@@ -517,6 +522,13 @@ export default function App() {
       <div className="app">
         {/* Barre du haut */}
         <header className="header">
+          <button
+            className="btn-sidebar-toggle"
+            onClick={() => setSidebarOpen((v) => !v)}
+            aria-label="Ouvrir le menu des modules"
+          >
+            ☰
+          </button>
           <h1>Projet Personnalisé</h1>
 
           {/* Nom du projet + sélecteur de projets */}
@@ -600,9 +612,15 @@ export default function App() {
           onDragEnd={handleDragEnd}
         >
           <div className="main">
+            {sidebarOpen && (
+              <div className="sidebar-backdrop" onClick={() => setSidebarOpen(false)} />
+            )}
             {/* Panneau gauche */}
-            <aside className="sidebar">
-              <h2>Modules disponibles</h2>
+            <aside className={`sidebar${sidebarOpen ? " sidebar-open" : ""}`}>
+              <div className="sidebar-mobile-header">
+                <h2>Modules disponibles</h2>
+                <button className="sidebar-close-btn" onClick={() => setSidebarOpen(false)} aria-label="Fermer">✕</button>
+              </div>
               <div className="sidebar-palette-section">
                 <DraggableTextItem />
               </div>
